@@ -120,6 +120,125 @@ def age_band_diagnostics():
     print("saved age_band_diagnostics.png (bands:", ", ".join(lab), ")")
 
 
+
+
+def calibration_reliability():
+    """Reliability of the class-weighted model before and after isotonic recalibration."""
+    import os
+    import pandas as pd
+    from sklearn.ensemble import HistGradientBoostingClassifier
+    from sklearn.isotonic import IsotonicRegression
+    from sklearn.model_selection import train_test_split as tts
+
+    raw_csv = os.path.join(ROOT, "data", "raw", "diabetes_binary_health_indicators_BRFSS2015.csv")
+    df = pd.read_csv(raw_csv)
+    FEATURES = ["HighBP", "HighChol", "CholCheck", "BMI", "Smoker", "Stroke",
+                 "HeartDiseaseorAttack", "PhysActivity", "Fruits", "Veggies",
+                 "HvyAlcoholConsump", "AnyHealthcare", "NoDocbcCost", "GenHlth",
+                 "MentHlth", "PhysHlth", "DiffWalk", "Sex", "Age", "Education", "Income"]
+    TARGET = "Diabetes_binary"
+    Xrest, Xte, yrest, yte = tts(df[FEATURES], df[TARGET].astype(int), test_size=0.20,
+                                  random_state=42, stratify=df[TARGET].astype(int))
+    Xtr, Xcal, ytr, ycal = tts(Xrest, yrest, test_size=0.20, random_state=42, stratify=yrest)
+    m = HistGradientBoostingClassifier(max_iter=150, learning_rate=0.1, max_leaf_nodes=31,
+                                       class_weight="balanced", random_state=42)
+    m.fit(Xtr.reset_index(drop=True), ytr.reset_index(drop=True))
+    p_raw = m.predict_proba(Xte)[:, 1]
+    yv = yte.astype(int).values
+    iso = IsotonicRegression(out_of_bounds="clip", y_min=0, y_max=1)
+    iso.fit(m.predict_proba(Xcal.reset_index(drop=True))[:, 1], ycal.reset_index(drop=True).values)
+    p_iso = np.clip(iso.predict(p_raw), 0, 1)
+
+    def reliability(y, pr, n_bins=10):
+        edges = np.linspace(0, 1, n_bins + 1)
+        idx = np.clip(np.digitize(pr, edges) - 1, 0, n_bins - 1)
+        xs, ys = [], []
+        for b in range(n_bins):
+            msk = idx == b
+            if msk.sum() < 30:
+                continue
+            xs.append(pr[msk].mean())
+            ys.append(y[msk].mean())
+        return xs, ys
+
+    fig, ax = plt.subplots(figsize=(3.2, 2.05))
+    ax.plot([0, 1], [0, 1], "k--", lw=0.9, label="Perfect calibration")
+    xs, ys = reliability(yv, p_raw)
+    ax.plot(xs, ys, "o-", ms=2.6, color="firebrick", lw=1.1, label="Uncalibrated")
+    xs, ys = reliability(yv, p_iso)
+    ax.plot(xs, ys, "s-", ms=2.6, color="steelblue", lw=1.1, label="Isotonic")
+    ax.set_xlabel("Mean predicted probability")
+    ax.set_ylabel("Observed proportion")
+    ax.set_xlim(0, 1)
+    ax.set_ylim(0, 1)
+    ax.grid(alpha=0.3, lw=0.4)
+    ax.legend(loc="upper left", frameon=True, handlelength=1.4, borderpad=0.3)
+    fig.tight_layout(pad=0.3)
+    fig.savefig(os.path.join(FIGS, "calibration_reliability_col.png"), dpi=300)
+    plt.close(fig)
+    print("saved calibration_reliability_col.png")
+
+
+def threshold_transfer():
+    """TPR gap of each policy's target attribute, in sample (2015) and out of time (2021)."""
+    d = load_all()
+    pol15 = d.get("policy_comparison_2015")
+    oot = d.get("policy_out_of_time", {})
+    if not pol15 or "2021" not in oot:
+        print("no policy comparison in the logs")
+        return
+    out21 = oot["2021"]
+    attrs = ["Sex", "Age", "Income", "Education"]
+    # each policy is scored on its own target attribute
+    in_sample = [pol15[a][a]["tpr_gap"] for a in attrs]
+    out_time = [out21[a][a]["tpr_gap"] for a in attrs]
+    x = np.arange(len(attrs))
+    fig, ax = plt.subplots(figsize=(3.2, 1.95))
+    ax.bar(x - 0.19, in_sample, 0.36, color="steelblue", label="2015 (in sample)")
+    ax.bar(x + 0.19, out_time, 0.36, color="firebrick", label="2021 (transported)")
+    ax.set_xticks(x)
+    ax.set_xticklabels(attrs)
+    ax.set_ylabel("TPR gap of the target attribute")
+    ax.set_ylim(0, 1.0)
+    ax.grid(alpha=0.3, lw=0.4, axis="y")
+    ax.legend(loc="upper left", frameon=True, handlelength=1.3, borderpad=0.3)
+    fig.tight_layout(pad=0.3)
+    fig.savefig(os.path.join(FIGS, "threshold_transfer_col.png"), dpi=300)
+    plt.close(fig)
+    print("saved threshold_transfer_col.png")
+    for a, i, o in zip(attrs, in_sample, out_time):
+        print("   %-10s in-sample %.4f -> 2021 %.4f" % (a, i, o))
+
+
+def shap_column():
+    """Compact SHAP bar chart sized for an IEEE column."""
+    shap_path = os.path.join(LOGS, "shap.json")
+    if not os.path.exists(shap_path):
+        print("no shap.json in the logs")
+        return
+    shap = json.load(open(shap_path))
+    if "top_features" not in shap:
+        print("no top_features in shap.json")
+        return
+    feats = shap["top_features"]
+    names = [f[0] for f in feats][::-1]
+    vals = [f[1] for f in feats][::-1]
+    fig, ax = plt.subplots(figsize=(3.2, 2.35))
+    ax.barh(range(len(names)), vals, color="steelblue", height=0.72)
+    ax.set_yticks(range(len(names)))
+    ax.set_yticklabels(names)
+    ax.set_xlabel("Mean |SHAP| value")
+    ax.set_xlim(0, max(vals) * 1.18)
+    ax.grid(alpha=0.3, lw=0.4, axis="x")
+    fig.tight_layout(pad=0.3)
+    fig.savefig(os.path.join(FIGS, "shap_top_features_col.png"), dpi=300)
+    plt.close(fig)
+    print("saved shap_top_features_col.png")
+
+
 if __name__ == "__main__":
+    shap_column()
     decision_curve()
     age_band_diagnostics()
+    calibration_reliability()
+    threshold_transfer()
