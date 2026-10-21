@@ -66,8 +66,38 @@ Artifacts:
 | `manuscript_anon.pdf` | **upload this** to CMT (double-blind) |
 | `manuscript.pdf` | camera-ready source, keep the author block |
 | `manuscript.tex` | authoritative source of both |
+| `manuscript_template.docx` | manuscript on the conference's own A4 Word template (`conference-template-a4.docx`) |
 | `manuscript.docx` | Word version, single column — for co-author review and annotation |
 | `manuscript_2col.docx` | Word version, two columns — matches the PDF layout, 6 pages |
+
+### The conference A4 template
+
+`conference-template-a4.docx` is the IEEE conference "live" template in A4 (Strict OOXML, so
+it is namespace-converted before use). `python src/make_template_docx.py` rebuilds the
+manuscript **on that template** — its styles, A4 page setup, margins, footer and numbering
+are reused verbatim:
+
+| Content | Template style |
+|---|---|
+| Title | `paper title` |
+| Author block | `Author` (one line each) |
+| Abstract / Keywords | `Abstract` / `Keywords` |
+| Sections / subsections | `Heading 1` (auto Roman) / `Heading 2` (auto lettered) |
+| Body | `Body Text` |
+| Table label + caption | `table head` (auto "TABLE I.") |
+| Table header / body cells | `table col head` / `table copy` |
+| Figure caption | `figure caption` (auto "Fig. 1.") |
+| Back matter | `Heading 5` |
+| References | `references` (auto "[1]") |
+
+Captions and references are **not** numbered manually — the template's own numbering
+definitions supply "TABLE I.", "Fig. 1.", "[1]", "I." and "A.", so the numbers stay
+consistent if content is added. Tables are real Word tables with IEEE rules, fixed column
+widths, a repeating header row and merged group rows; the figure is embedded at 4.2 in.
+
+Note the length difference: the IEEEtran PDF is 6 pages (two-column), while the A4 template
+version is 7 pages (single column, A4). If the 6-page limit is enforced in the A4 format,
+tell me and I will trim ~1 page of prose from the Word version only, leaving the PDF intact.
 
 The Word versions are produced by `python src/make_docx.py [--twocol]`: IEEE-numbered
 citations, all four tables and the figure as native Word objects, the 17 references as a

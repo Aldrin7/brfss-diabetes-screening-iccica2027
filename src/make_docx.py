@@ -59,6 +59,8 @@ def math_to_text(s):
         s = s.replace(a, b)
     s = re.sub(r"\\(?:text|emph|mathrm|texttt|mathbf|operatorname)\{([^{}]*)\}", r"\1", s)
     s = s.replace("\\left", "").replace("\\right", "")
+    s = re.sub(r"_\{([^{}]*)\}", r"\1", s)
+    s = re.sub(r"\^\{([^{}]*)\}", r"\1", s)
     s = re.sub(r"\\[a-zA-Z]+", "", s)
     s = s.replace("{", "").replace("}", "")
     s = re.sub(r"\s+", " ", s).strip()

@@ -41,6 +41,7 @@ python src/compile_ieee.py --anon   # also build the double-blind anonymized PDF
 python src/make_anon.py            # anonymized double-blind PDF only
 python src/make_docx.py            # Word version (single column, editable)
 python src/make_docx.py --twocol   # Word version, two columns like the PDF
+python src/make_template_docx.py   # Word version on conference-template-a4.docx
 python src/check_tex.py            # LaTeX structure / citation / cross-reference check
 python src/audit_numbers.py        # machine-check every number in the manuscript against run logs (121 checks)
 python src/audit_round8.py         # round-8 review computations: per-band AUC/ECE/net benefit, calibration transport
@@ -73,6 +74,8 @@ the bibliography, and verifies that no identifier remains in the output.
 - manuscript.tex — IEEE conference manuscript (authoritative source)
 - manuscript.pdf — IEEEtran build, 6 pages, for camera-ready use
 - manuscript_anon.pdf — anonymized double-blind build, 6 pages, for the CMT submission
+- manuscript_template.docx — manuscript on the conference's own A4 Word template
+  (conference-template-a4.docx), 7 pages
 - manuscript.docx — Word version, single column, editable (7 pages)
 - manuscript_2col.docx — Word version, two columns matching the PDF layout (6 pages)
 - paperreview_review_round*.md, paperreview_responses_round*.md — eight external review rounds
