@@ -1,0 +1,117 @@
+{
+  "hyperparameter_search": {
+    "HistGradientBoosting": {
+      "best_params": {
+        "min_samples_leaf": "80",
+        "max_leaf_nodes": "15",
+        "max_iter": "300",
+        "learning_rate": "0.03",
+        "l2_regularization": "0.1"
+      },
+      "best_cv_auc": 0.8302782564790204
+    },
+    "RandomForest": {
+      "best_params": {
+        "min_samples_leaf": "40",
+        "max_features": "sqrt",
+        "max_depth": "16"
+      },
+      "best_cv_auc": 0.8274919626690577
+    },
+    "LogisticRegression": {
+      "best_params": {
+        "c__solver": "liblinear",
+        "c__penalty": "l2",
+        "c__C": "0.01"
+      },
+      "best_cv_auc": 0.8232613370412554
+    }
+  },
+  "wave_drift": {
+    "2017": {
+      "n": 275854,
+      "prevalence": 0.14087887070696817,
+      "roc_auc": 0.8337931551323724,
+      "thr_for_sens085": 0.42000000000000004,
+      "sens": 0.8517832329782307,
+      "spec": 0.6537731231433972,
+      "mean_pred": 0.3662432488478463,
+      "pred_shift_vs_2015": -0.011735229301682693,
+      "brier": 0.16911911445690678
+    },
+    "2019": {
+      "n": 243317,
+      "prevalence": 0.14507412141362913,
+      "roc_auc": 0.8256282102397379,
+      "thr_for_sens085": 0.42000000000000004,
+      "sens": 0.8515538683815406,
+      "spec": 0.638021709659741,
+      "mean_pred": 0.3789545099821198,
+      "pred_shift_vs_2015": 0.0009760318325908179,
+      "brier": 0.17573128215685668
+    },
+    "2021": {
+      "n": 236378,
+      "prevalence": 0.14200983171022685,
+      "roc_auc": 0.8197632555669583,
+      "thr_for_sens085": 0.395,
+      "sens": 0.8502442802669209,
+      "spec": 0.6302401262265175,
+      "mean_pred": 0.36796459630950695,
+      "pred_shift_vs_2015": -0.010013881840022054,
+      "brier": 0.17177993891394358
+    }
+  },
+  "feature_selectors": {
+    "shap_k10": {
+      "auc": 0.8248009716458284,
+      "features": [
+        "GenHlth",
+        "HighBP",
+        "Age",
+        "BMI",
+        "HighChol",
+        "Income",
+        "Sex",
+        "CholCheck",
+        "HvyAlcoholConsump",
+        "MentHlth"
+      ]
+    },
+    "mutual_info_k10": {
+      "auc": 0.821291050693937,
+      "features": [
+        "GenHlth",
+        "HighBP",
+        "BMI",
+        "HighChol",
+        "PhysActivity",
+        "DiffWalk",
+        "Age",
+        "AnyHealthcare",
+        "CholCheck",
+        "Fruits"
+      ]
+    },
+    "correlation_k10": {
+      "auc": 0.8217784065773082,
+      "features": [
+        "GenHlth",
+        "HighBP",
+        "DiffWalk",
+        "BMI",
+        "HighChol",
+        "HeartDiseaseorAttack",
+        "Age",
+        "PhysHlth",
+        "Income",
+        "Education"
+      ]
+    },
+    "random_k10": {
+      "auc_mean": 0.778447102181911,
+      "auc_std": 0.01076712072454261
+    }
+  },
+  "elapsed_s": 1178.9
+}

@@ -1,0 +1,144 @@
+{
+  "auc_pairwise": {
+    "test_auc": {
+      "LogisticRegression": 0.8196313622060201,
+      "RandomForest": 0.8235534208611819,
+      "HistGradientBoosting": 0.8269175105153435
+    },
+    "pairs": {
+      "LogisticRegression vs RandomForest": {
+        "auc_a": 0.8196313622060201,
+        "auc_b": 0.8235534208611819,
+        "delta_auc": -0.00392205865516182,
+        "ci95": [
+          -0.005596592001470693,
+          -0.0023921905792813726
+        ],
+        "p_value": 0.0,
+        "significant": true
+      },
+      "LogisticRegression vs HistGradientBoosting": {
+        "auc_a": 0.8196313622060201,
+        "auc_b": 0.8269175105153435,
+        "delta_auc": -0.0072861483093233925,
+        "ci95": [
+          -0.008780748223006594,
+          -0.005800086254334754
+        ],
+        "p_value": 0.0,
+        "significant": true
+      },
+      "RandomForest vs HistGradientBoosting": {
+        "auc_a": 0.8235534208611819,
+        "auc_b": 0.8269175105153435,
+        "delta_auc": -0.003364089654161573,
+        "ci95": [
+          -0.004395766701283626,
+          -0.0022974555677795607
+        ],
+        "p_value": 0.0,
+        "significant": true
+      }
+    },
+    "n_boot": 2000
+  },
+  "scenario_analysis": {
+    "BMI +5 (1 SD approx)": {
+      "column": "BMI",
+      "base_mean_prob": 0.37623753176548114,
+      "new_mean_prob": 0.4452234536942411,
+      "mean_abs_shift": 0.06898592192876002,
+      "mean_prob_change": 0.06898592192875996,
+      "ci95": [
+        8.10302819678944e-05,
+        0.188266792286966
+      ],
+      "share_increased": 0.9597918637653737,
+      "feature_range": [
+        12.0,
+        98.0
+      ]
+    },
+    "BMI +10": {
+      "column": "BMI",
+      "base_mean_prob": 0.37623753176548114,
+      "new_mean_prob": 0.4940134765934439,
+      "mean_abs_shift": 0.1177759448279628,
+      "mean_prob_change": 0.11777594482796278,
+      "ci95": [
+        0.0,
+        0.32029342511017383
+      ],
+      "share_increased": 0.9643054241564175,
+      "feature_range": [
+        12.0,
+        98.0
+      ]
+    },
+    "Smoker 0->1": {
+      "column": "Smoker",
+      "base_mean_prob": 0.37623753176548114,
+      "new_mean_prob": 0.37642883469420724,
+      "mean_abs_shift": 0.0001913029287261987,
+      "mean_prob_change": 0.00019130292872610033,
+      "ci95": [
+        -0.02082621566234859,
+        0.01278228971087022
+      ],
+      "share_increased": 0.26801482182276887,
+      "feature_range": [
+        0.0,
+        1.0
+      ]
+    },
+    "PhysActivity 1->0": {
+      "column": "PhysActivity",
+      "base_mean_prob": 0.37623753176548114,
+      "new_mean_prob": 0.3798108650739785,
+      "mean_abs_shift": 0.003573333308497453,
+      "mean_prob_change": 0.0035733333084973506,
+      "ci95": [
+        -0.004210218422619935,
+        0.0229622953370264
+      ],
+      "share_increased": 0.5218779564806055,
+      "feature_range": [
+        0.0,
+        1.0
+      ]
+    },
+    "HvyAlcoholConsump 0->1": {
+      "column": "HvyAlcoholConsump",
+      "base_mean_prob": 0.37623753176548114,
+      "new_mean_prob": 0.2728035277887364,
+      "mean_abs_shift": -0.1034340039767447,
+      "mean_prob_change": -0.10343400397674474,
+      "ci95": [
+        -0.30938542378297806,
+        0.0030836776453354773
+      ],
+      "share_increased": 0.04385446231472721,
+      "feature_range": [
+        0.0,
+        1.0
+      ]
+    },
+    "GenHlth +1 (worse)": {
+      "column": "GenHlth",
+      "base_mean_prob": 0.37623753176548114,
+      "new_mean_prob": 0.47530735879451885,
+      "mean_abs_shift": 0.09906982702903769,
+      "mean_prob_change": 0.09906982702903772,
+      "ci95": [
+        0.0,
+        0.24929483072941322
+      ],
+      "share_increased": 0.9430187637969095,
+      "feature_range": [
+        1.0,
+        5.0
+      ]
+    }
+  },
+  "elapsed_s": 258.1
+}

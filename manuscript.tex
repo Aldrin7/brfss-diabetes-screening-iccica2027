@@ -22,7 +22,7 @@
 \maketitle
 
 \begin{abstract}
-Diabetes affects hundreds of millions of people worldwide, yet a large share of cases remain undiagnosed. Practitioners require screening tools that are reproducible, transparent, grounded in open data, and honest about what they can and cannot establish. This paper presents an interpretable, fairness-aware machine learning framework for diabetes screening from the 2015 Behavioral Risk Factor Surveillance System (BRFSS), a publicly available survey of 253{,}680 US adults with 21 health, lifestyle, and demographic features and no missing values. We compare logistic regression, random forest, and histogram-based gradient boosting across five random seeds, reporting mean $\pm$ standard deviation, and evaluate discrimination and fairness across sex, age, income, and education groups. Histogram-based gradient boosting achieved the best discrimination (ROC-AUC $0.8288 \pm 0.0014$; F1 $0.4426 \pm 0.0023$), while logistic regression remained competitive (ROC-AUC $0.8212 \pm 0.0014$), supporting a screening-level tool built on an interpretable baseline. Ablations show that clinical-history features dominate predictive signal (AUC $0.8241$ vs. $0.7104$ for demographics alone), whereas lifestyle features alone are weaker ($0.7475$). SHAP analysis identifies general health status, high blood pressure, age, BMI, and high cholesterol as the leading contributors. Fairness analysis reveals a small sex gap (TPR gap $0.0207 \pm 0.0039$) but large age, income, and education gaps that track base rates rather than model bias. We frame the tool as a screening-level, hypothesis-generating instrument that complements, rather than replaces, clinical assessment, and we discuss ethical implications and deployment safeguards. Three novel contributions extend prior work: out-of-time validation on 2017--2021 BRFSS waves (AUC $0.8198$--$0.8338$), a minimal-questionnaire experiment showing 5 SHAP-ranked features retain AUC $0.8186$, and fairness-aware threshold optimization for target screening sensitivity.
+Diabetes affects hundreds of millions of people worldwide, yet a large share of cases remain undiagnosed. Practitioners require screening tools that are reproducible, transparent, grounded in open data, and honest about what they can and cannot establish. This paper presents an interpretable, fairness-aware machine learning framework for diabetes screening from the 2015 Behavioral Risk Factor Surveillance System (BRFSS), a publicly available survey of 253{,}680 US adults with 21 health, lifestyle, and demographic features and no missing values. We compare logistic regression, random forest, and histogram-based gradient boosting across five random seeds, reporting mean $\pm$ standard deviation, and evaluate discrimination, calibration, and fairness across sex, age, income, and education groups. Histogram-based gradient boosting achieved the best discrimination (ROC-AUC $0.8288 \pm 0.0014$; F1 $0.4426 \pm 0.0023$), while logistic regression remained competitive (ROC-AUC $0.8212 \pm 0.0014$), supporting a screening-level tool built on an interpretable baseline; paired bootstrap tests show the AUC gaps are statistically significant yet practically negligible ($\Delta$AUC $\leq 0.0073$). Ablations show that clinical-history features dominate predictive signal (AUC $0.8241$ vs. $0.7104$ for demographics alone). SHAP analysis identifies general health status, high blood pressure, age, BMI, and high cholesterol as the leading contributors. We further show that duplicate-profile leakage is negligible (grouped versus stratified CV, $\Delta$AUC $=0.0001$), that class-balancing weights leave the model badly miscalibrated (ECE $0.2367$) until post-hoc recalibration (ECE $0.0031$), and that the large age TPR gap is concentrated in sparse strata, falling from $0.788$ to $0.144$ under a minimum-support constraint. Three further contributions extend prior work: out-of-time validation on 2017--2021 BRFSS waves (AUC $0.8198$--$0.8338$), a minimal-questionnaire experiment showing 5 SHAP-ranked features retain AUC $0.8186$, and fairness-aware threshold optimization for target screening sensitivity.
 \end{abstract}
 
 \begin{IEEEkeywords}
@@ -38,13 +38,13 @@ Diabetes is among the most prevalent chronic diseases globally, and a substantia
 Beyond age and body mass index, diabetes risk reflects blood pressure, cholesterol, physical activity, diet, alcohol use, mental health, and socioeconomic conditions. Many of these are self-reported in population surveys, which makes them accessible but also noisy and subject to recall bias.
 
 \subsection{Methodological approaches}
-Prior work has used logistic regression and, more recently, machine learning classifiers on the BRFSS, with AUC values roughly between 0.72 and 0.80 \cite{xie2019}. We extend this line by (a) using the 2015 BRFSS release with 253{,}680 respondents, (b) reporting variance across five seeds, (c) quantifying fairness across protected and stratifying groups, and (d) providing SHAP-based explanations and ablations.
+Prior work has used logistic regression and, more recently, machine learning classifiers on the BRFSS, with AUC values roughly between 0.72 and 0.80 \cite{xie2019}. Related studies have since expanded the evidence base in three directions: non-invasive dysglycemia screening on NHANES with calibration and decision-curve analysis \cite{sun2026beyond}; large-scale external validation of NHANES-trained diabetes models on BRFSS, which documented a $9.7\%$ relative AUC drop and marked age-related performance disparities \cite{pall2026comprehensive}; and parsimonious feature selection for BRFSS diabetes prediction, which reduced 21 features to 10 with a copula tail-dependence filter at AUC $0.823$ \cite{aich2026copula}. We extend this line by (a) using the 2015 BRFSS release with 253{,}680 respondents, (b) reporting variance across five seeds, (c) quantifying fairness across protected and stratifying groups with inference, (d) providing SHAP-based explanations and ablations, and (e) testing out-of-time transfer, duplicate-profile leakage, calibration, and feature-selector alternatives.
 
 \subsection{Interpretability, transparency, and ethics}
-Because screening touches health equity, we treat interpretability and fairness as first-class. We report SHAP attributions, ablations by feature group, and fairness metrics, and we state explicitly where the data and model fall short. Association is not causation; screening is not diagnosis.
+Because screening touches health equity, we treat interpretability and fairness as first-class. We report SHAP attributions, ablations by feature group, and fairness metrics with bootstrap confidence intervals, following recent audit practice for clinical risk models \cite{roy2026kaisen}. We state explicitly where the data and model fall short: BRFSS is a complex survey, and design-weighted modeling and design-based uncertainty quantification are the established remedy for population-level claims \cite{matabuena2024screening,wieczorek2023design}. Association is not causation; screening is not diagnosis.
 
 \subsection{Research questions and contributions}
-This paper addresses three interrelated research questions: (1) \textbf{Driver identification:} which features most strongly associate with diabetes status, and how stable are these attributions? (2) \textbf{Fairness:} how do performance and error rates differ across sex, age, income, and education groups? (3) \textbf{Screening utility:} does a simple interpretable baseline remain competitive with tree ensembles? We have made the following contributions: (i) a reproducible multi-seed pipeline on a large public dataset; (ii) fairness quantification across four stratifiers with base-rate context; (iii) SHAP explanations with ablations; (iv) out-of-time validation on 2017--2021 waves; (v) a minimal-questionnaire experiment; and (vi) fairness-aware threshold optimization for screening. The tool is positioned as screening-level and complementing, not replacing, clinical assessment.
+This paper addresses three interrelated research questions: (1) \textbf{Driver identification:} which features most strongly associate with diabetes status, and how stable are these attributions? (2) \textbf{Fairness:} how do performance and error rates differ across sex, age, income, and education groups? (3) \textbf{Screening utility:} does a simple interpretable baseline remain competitive with tree ensembles? We have made the following contributions: (i) a reproducible multi-seed pipeline on a large public dataset; (ii) a leakage audit that quantifies, rather than assumes, the effect of duplicate covariate profiles; (iii) a calibration audit showing that class-balancing weights require post-hoc recalibration before probabilities are communicated, with a measurable effect on subgroup calibration; (iv) fairness quantification with per-group supports, bootstrap inference, and a minimum-support analysis of the age disparity; (v) SHAP explanations with ablations and a comparison against alternative feature selectors; (vi) out-of-time validation on 2017--2021 waves; (vii) a minimal-questionnaire experiment; and (viii) fairness-aware threshold optimization for screening. The tool is positioned as screening-level and complementing, not replacing, clinical assessment.
 
 \section{Materials and Methods}
 
@@ -84,16 +84,19 @@ Stratified 5-fold cross-validation on the training set for model development; a 
 Three models: (M0) logistic regression with L2 penalty (interpretable baseline), (M1) random forest (100 trees, max depth 20), (M2) histogram-based gradient boosting (150 iterations). Class weights are balanced to address the 13.93\% prevalence. The humble-baseline move: logistic regression is included deliberately and reported honestly.
 
 \subsection{Hyperparameter optimization}
-Light fixed settings (learning rate 0.1, 31 leaves) chosen for stability and short runtime; no extensive grid search was performed. This is disclosed as a limitation.
+Baseline settings are fixed and light (learning rate 0.1, 31 leaves). To verify that these do not disadvantage the baselines, we additionally run a randomized search (20 iterations for gradient boosting, 6 for random forest, 10 for logistic regression; 3-fold cross-validation on the training portion only) and report the best configuration found.
 
 \subsection{Evaluation framework}
-Metrics: accuracy, F1, ROC-AUC, precision, recall, confusion matrix. Fairness: TPR gap (max--min recall across groups), accuracy gap, demographic parity \cite{hardt2016}. Ablations by feature group (demographic only; +clinical; +lifestyle; full). Significance: paired comparisons across seeds where applicable.
+Metrics: accuracy, F1, ROC-AUC, precision, recall, confusion matrix. Fairness: TPR gap, FPR gap, equalized-odds difference, and selection-rate gap across groups, each with per-group supports and 300-resample bootstrap confidence intervals \cite{hardt2016}. Calibration: Brier score, expected calibration error (ECE, 10 equal-width bins), and maximum calibration error (MCE), computed overall and per group. Leakage control: grouped 5-fold cross-validation with identical covariate profiles constrained to a single fold, plus a full deduplicated refit. Model comparison: paired bootstrap of the test-set AUC difference (2{,}000 resamples). Ablations by feature group (demographic only; $+$clinical; $+$lifestyle; full).
+
+\subsection{Post-hoc recalibration}
+Because class-balancing weights distort the probability scale, we reserve a calibration split (64/16/20 train/calibration/test) and compare isotonic and Platt (logistic) recalibration fitted on the calibration split, reporting Brier, ECE, and MCE before and after. Because both maps are monotone, discrimination is unchanged.
 
 \subsection{Explainability method}
 TreeSHAP \cite{shap2017} for the gradient boosting model on a 2{,}000-row test sample; mean absolute SHAP per feature; stability of top features across seeds. Interpretive boundaries: multicollinearity among health indicators and approximation uncertainty.
 
-\subsection{Scenario analysis}
-Stylized perturbations of modifiable risk factors, bounded by the historical feature range; labeled as sensitivity probes, not projections.
+\subsection{Scenario probe design}
+Bounded perturbation probes: each modifiable feature is shifted to a specified value, clipped to its historical range, and the induced change in predicted probability is reported with a paired bootstrap confidence interval. These probes characterise model behaviour and are not projections of causal effects.
 
 \subsection{Software implementation}
 Python 3.11.8; scikit-learn 1.5.2 \cite{sklearn}; XGBoost 2.1.3 \cite{xgboost}; SHAP 0.46.0; pandas 2.2.3; NumPy 2.1.3; matplotlib 3.9.2. Pinned versions in requirements.txt. Seeds fixed (42, 7, 123, 2024, 99). Run manifest saved.
@@ -149,67 +152,143 @@ SHAP (Fig.~\ref{fig:shap}) ranks general health status (0.638), high blood press
 \label{fig:shap}
 \end{figure}
 
-\subsection{Fairness and diagnostic analysis}
-Table~\ref{tab:fair} (5 seeds) reports TPR and accuracy gaps. The sex gap is small (TPR $0.0207 \pm 0.0039$). Age, income, and education gaps are large (TPR up to $0.8175 \pm 0.0556$ for age), but these track strong base-rate differences in diabetes prevalence across age groups and should not be read as model bias alone. We caution against over-interpreting gap metrics without base-rate context \cite{mehrabi2021}.
+\subsection{Leakage sensitivity from duplicate profiles}
+The cleaned BRFSS release contains 25{,}772 rows (10.16\%) whose 21-feature vector is an exact duplicate of an earlier row. Because identical covariate vectors may otherwise appear in both training and test folds, we re-ran the protocol in two ways. First, a grouped 5-fold cross-validation isolates identical profiles within a fold assignment; second, the entire pipeline was refit after removing duplicate rows. Table~\ref{tab:leak} shows the effect is small: grouped CV gives AUC $0.8301$ versus $0.8302$ for plain stratified CV ($\Delta = 0.0001$), and deduplicated refitting reduces AUC by at most $0.006$ (HGB $0.8269 \rightarrow 0.8207$). We therefore conclude that duplicate profiles do not materially inflate the reported performance, while noting the $0.006$ shift as the honest magnitude of the effect.
 
 \begin{table}[h]
-\caption{Fairness gaps (HGB, mean $\pm$ std, 5 seeds).}
+\caption{Leakage sensitivity to duplicate covariate profiles.}
+\label{tab:leak}
+\centering
+\begin{tabular}{lcc}
+\toprule
+Setting & $n$ & ROC-AUC \\
+\midrule
+Stratified 5-fold CV (all rows) & 253{,}680 & 0.8302 \\
+Grouped 5-fold CV (duplicates isolated) & 253{,}680 & 0.8301 \\
+Deduplicated refit --- logistic regression & 227{,}908 & 0.8140 \\
+Deduplicated refit --- random forest & 227{,}908 & 0.8181 \\
+Deduplicated refit --- gradient boosting & 227{,}908 & 0.8207 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Calibration and post-hoc recalibration}
+Discrimination alone is insufficient for screening, where a communicated probability must correspond to an observed frequency. Because class-balancing weights distort the probability scale, we evaluated calibration and then applied post-hoc recalibration fitted on a held-out calibration split (64/16/20 train/calibration/test). The uncalibrated model is badly miscalibrated (Brier $0.1757$, ECE $0.2367$, MCE $0.4201$; mean predicted probability $0.376$ against observed prevalence $0.139$). Isotonic recalibration reduces ECE to $0.0031$ and Platt scaling to $0.0083$ with MCE $0.0559$, while leaving discrimination unchanged (AUC $0.8265$, since recalibration is monotone). Per-group maximum ECE falls from $0.2505$ to $0.0045$ (sex), $0.3403$ to $0.0208$ (age), $0.3093$ to $0.0343$ (income), and $0.3478$ to $0.0342$ (education). We regard this as a practical precondition: a balanced-weight model must be recalibrated before any probability is communicated to a user or clinician. Figure~\ref{fig:cal} shows the reliability diagrams before and after isotonic recalibration.
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=\linewidth]{calibration_curve.png}
+\caption{Reliability diagrams before and after isotonic recalibration (HGB, 2015 test).}
+\label{fig:cal}
+\end{figure}
+
+\begin{table}[h]
+\caption{Calibration before and after post-hoc recalibration (HGB).}
+\label{tab:cal}
+\centering
+\begin{tabular}{lccc}
+\toprule
+Calibration & Brier & ECE & MCE \\
+\midrule
+Uncalibrated & 0.1757 & 0.2367 & 0.4201 \\
+Isotonic & 0.0976 & 0.0031 & 0.2500 \\
+Platt (logistic) & 0.0977 & 0.0083 & 0.0559 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Fairness with support and inference}
+We now quantify subgroup disparities with per-group supports and bootstrap confidence intervals (300 resamples) rather than point estimates alone, following recent audit practice for clinical risk models \cite{roy2026kaisen}. Table~\ref{tab:fair} reports the TPR gap (both across five seeds and as a bootstrap interval), the equalized-odds FPR gap, and the smallest positive count in any group. We caution against over-interpreting gap metrics without base-rate context \cite{mehrabi2021}. The sex TPR gap is small ($0.0241$, 95\% CI $[0.0066, 0.0417]$) with a larger FPR gap ($0.0643$, CI $[0.0556, 0.0723]$). The age TPR gap is very large ($0.7889$, CI $[0.6421, 0.8774]$), but the smallest age stratum contains only 14 positives. Repeating the computation under increasing minimum-support thresholds (Table~\ref{tab:age}) shows the gap falls from $0.7879$ (all 13 bands) to $0.1436$ when only bands with at least 500 positives are retained, while the widest within-group 95\% confidence interval for TPR narrows from $0.340$ to $0.072$. We therefore attribute the headline age disparity to a combination of genuine age-related heterogeneity and sparse strata, and we report the support-restricted figure as the more defensible estimate. We caution against interpreting any single threshold as equitable across age bands, and recommend age-stratified thresholds where screening is deployed.
+
+\begin{table}[h]
+\caption{Subgroup disparities: seed variance, bootstrap inference, and support (HGB).}
 \label{tab:fair}
 \centering
-\begin{tabular}{lcc}
+\begin{tabular}{lccccc}
 \toprule
-Stratifier & TPR gap & Accuracy gap \\
+Stratifier & TPR gap (5 seeds) & TPR gap (95\% CI) & FPR gap & Min $n$ & Min $n_{pos}$ \\
 \midrule
-Sex & $0.0207 \pm 0.0039$ & $0.0517 \pm 0.0043$ \\
-Age (13 groups) & $0.8175 \pm 0.0556$ & $0.4444 \pm 0.0040$ \\
-Income (8 levels) & $0.2813 \pm 0.0097$ & $0.2828 \pm 0.0071$ \\
-Education (6 levels) & $0.2904 \pm 0.0082$ & $0.2766 \pm 0.0150$ \\
+Sex & $0.0207 \pm 0.0039$ & 0.0241 (0.0066, 0.0417) & 0.0643 & 22{,}205 & 3{,}384 \\
+Age (13 bands) & $0.8175 \pm 0.0556$ & 0.7889 (0.6421, 0.8774) & 0.5320 & 1{,}207 & 14 \\
+Income (8 levels) & $0.2813 \pm 0.0097$ & 0.2849 (0.2571, 0.3173) & 0.4229 & 1{,}941 & 475 \\
+Education (6 levels) & $0.2904 \pm 0.0082$ & 0.2436 (0.2107, 0.2781) & 0.4738 & 795 & 221 \\
 \bottomrule
 \end{tabular}
 \end{table}
+
+\begin{table}[h]
+\caption{Age TPR gap under increasing minimum support.}
+\label{tab:age}
+\centering
+\begin{tabular}{lccc}
+\toprule
+Min. positives & Bands & TPR gap & Widest TPR 95\% CI width \\
+\midrule
+1 & 13 & 0.7879 & 0.340 \\
+20 & 12 & 0.5426 & 0.340 \\
+50 & 11 & 0.5426 & 0.229 \\
+100 & 10 & 0.4206 & 0.154 \\
+500 & 7 & 0.1436 & 0.072 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.8\linewidth]{age_gap_support.png}
+\caption{Age TPR gap as a function of the minimum positive count required in a band.}
+\label{fig:age}
+\end{figure}
+
+\subsection{Statistical comparison of model discrimination}
+Paired bootstrap comparison of test-set AUC (2{,}000 resamples) shows that the three models differ significantly but negligibly: HGB exceeds random forest by $\Delta$AUC $0.0034$ (95\% CI $[0.0023, 0.0044]$) and logistic regression by $0.0073$ (CI $[0.0058, 0.0088]$), all at $p<0.001$. A randomized hyperparameter search on the training portion (3-fold CV) returns best CV AUC $0.8303$ for HGB, $0.8275$ for random forest, and $0.8233$ for logistic regression, preserving the same ordering and similarly small separations; our fixed light settings therefore did not disadvantage any baseline. We read this as the quantitative basis for the humble-baseline position: the discriminative differences are real but far below the $0.02$--$0.03$ margin that would change a screening decision, so the interpretable logistic baseline remains a defensible deployment option.
 
 \subsection{Scenario analysis}
-Stylized increases in BMI and reductions in physical activity raise predicted risk monotonically within the historical range; these are sensitivity probes, not projections, and are bounded by the 2015 feature distribution.
+We performed bounded perturbation probes on the test set, clipping each modified feature to its historical range. These are sensitivity probes of model behaviour, not projections of causal effects. A $+5$ BMI shift raises mean predicted probability by $0.0690$ (95\% CI $[0.0001, 0.1883]$) with $96.0\%$ of individuals increasing, and $+10$ raises it by $0.1178$ (CI $[0.0000, 0.3203]$). A one-point worsening of general health raises it by $0.0991$ (CI $[0.0000, 0.2493]$). By contrast, the smoking and physical-activity probes are small and not distinguishable from zero (smoker $0\rightarrow1$: $+0.0002$, CI $[-0.0208, 0.0128]$; physical activity $1\rightarrow0$: $+0.0036$, CI $[-0.0042, 0.0230]$), and setting heavy alcohol use to present \emph{decreases} mean predicted probability by $0.1034$ (CI $[-0.3094, 0.0031]$) with only $4.4\%$ of individuals increasing. We report this pattern explicitly: the fitted model encodes the historical associations of this survey, including the non-monotone association with heavy alcohol use, and we do not read these probes as behavioural or clinical guidance.
 
-\subsection{Temporal external validation (novel)}
-Training on the 2015 wave and testing on later waves (Table~\ref{tab:temp}) yields AUC $0.8338$ (2017), $0.8256$ (2019), and $0.8198$ (2021), with sensitivity $0.77$--$0.79$ at the default threshold. The modest decline over time indicates the model transfers to future populations, supporting deployment for longitudinal screening, though prevalence rose from $13.9\%$ to $14.5\%$.
+\subsection{Temporal external validation}
+Training on the 2015 wave and testing on later waves (Table~\ref{tab:temp}) yields AUC $0.8338$ (2017), $0.8256$ (2019), and $0.8198$ (2021), with sensitivity $0.77$--$0.79$ at the default threshold. The modest decline over time indicates the model transfers to future populations, supporting deployment for longitudinal screening, though prevalence rose from $13.9\%$ to $14.5\%$. We also re-optimized the decision threshold on each wave to hold sensitivity at $0.85$: the required threshold moves only from $0.420$ (2017) to $0.420$ (2019) to $0.395$ (2021), and the Brier score remains stable at $0.1691$--$0.1757$, with mean predicted probability shifting by at most $0.012$. The operating point therefore transfers across waves without re-calibration, which is the practical condition for longitudinal screening.
 
 \begin{table}[h]
-\caption{Out-of-time validation (train 2015, HGB).}
+\caption{Out-of-time validation (train 2015, HGB), with per-wave threshold re-optimization to 0.85 sensitivity.}
 \label{tab:temp}
 \centering
-\begin{tabular}{lcccc}
+\begin{tabular}{lccccc}
 \toprule
-Test wave & $n$ & Prev. & ROC-AUC & Recall \\
+Test wave & $n$ & Prev. & ROC-AUC & Thr. (sens.\ 0.85) & Brier \\
 \midrule
-2017 & 275{,}854 & 0.141 & 0.8338 & 0.7915 \\
-2019 & 243{,}317 & 0.145 & 0.8256 & 0.7882 \\
-2021 & 236{,}378 & 0.142 & 0.8198 & 0.7660 \\
+2017 & 275{,}854 & 0.141 & 0.8338 & 0.420 & 0.1691 \\
+2019 & 243{,}317 & 0.145 & 0.8256 & 0.420 & 0.1757 \\
+2021 & 236{,}378 & 0.142 & 0.8198 & 0.395 & 0.1718 \\
 \bottomrule
 \end{tabular}
 \end{table}
 
-\subsection{Minimal questionnaire (novel)}
-Using SHAP-ranked features, Table~\ref{tab:mq} shows 5 features retain AUC $0.8186$ (vs. $0.8269$ for all 21), and 11 features reach $0.8257$. A short screening questionnaire is therefore feasible without large discrimination loss, which matters for low-resource settings. SHAP rankings are computed on the training set only to avoid selection bias.
+\subsection{Minimal questionnaire}
+Using SHAP-ranked features, Table~\ref{tab:mq} shows 5 features retain AUC $0.8186$ (vs. $0.8269$ for all 21), and 11 features reach $0.8257$. A short screening questionnaire is therefore feasible without large discrimination loss, which matters for low-resource settings. SHAP rankings are computed on the training set only to avoid selection bias. We also compared three training-only ranking procedures at $k=10$ against a random-subset baseline: SHAP attains $0.8248$, correlation filtering $0.8218$, mutual information $0.8213$, and ten random features $0.7784 \pm 0.0108$. SHAP is therefore the strongest of the three filters on identical splits, though the margin over correlation and mutual information is small; for context, a copula tail-dependence filter on this same dataset has been reported at $0.823$ with 10 features \cite{aich2026copula}, which is consistent with our range. Because several of these top features are proxies for the same underlying constructs, we do not claim that a ten-item form is clinically validated.
 
 \begin{table}[h]
-\caption{Minimal questionnaire (HGB, 2015 test).}
+\caption{Minimal questionnaire (HGB, 2015 test) and ranking-procedure comparison at $k=10$.}
 \label{tab:mq}
 \centering
-\begin{tabular}{lcc}
+\begin{tabular}{lccc}
 \toprule
-Top-$k$ features & ROC-AUC & F1 \\
+Setting & $n$ & ROC-AUC & F1 \\
 \midrule
-5 & 0.8186 & 0.4305 \\
-8 & 0.8231 & 0.4357 \\
-11 & 0.8257 & 0.4404 \\
-15 & 0.8263 & 0.4413 \\
-21 (all) & 0.8269 & 0.4411 \\
+Top-5 SHAP features & 5 & 0.8186 & 0.4305 \\
+Top-8 SHAP features & 8 & 0.8231 & 0.4357 \\
+Top-11 SHAP features & 11 & 0.8257 & 0.4404 \\
+Top-15 SHAP features & 15 & 0.8263 & 0.4413 \\
+All features & 21 & 0.8269 & 0.4411 \\
+\midrule
+Mutual information, $k=10$ & 10 & 0.8213 & --- \\
+Correlation filter, $k=10$ & 10 & 0.8218 & --- \\
+Random 10 features (5 draws) & 10 & $0.7784 \pm 0.0108$ & --- \\
 \bottomrule
 \end{tabular}
 \end{table}
 
-\subsection{Fairness-aware threshold optimization (novel)}
+\subsection{Fairness-aware threshold optimization}
 For screening, sensitivity matters more than overall accuracy. Table~\ref{tab:thr} shows that lowering the threshold from $0.50$ to $0.345$ raises sensitivity from $0.797$ to $0.901$ at a specificity cost ($0.706 \to 0.571$), with the sex TPR gap staying small ($0.016$--$0.025$). This gives practitioners an explicit operating-point choice.
 
 \begin{table}[h]
@@ -235,25 +314,28 @@ Default (thr=0.50) & 0.797 & 0.706 & 0.500 & 0.021 \\
 The model captures strong, well-known associations between diabetes and general health status, blood pressure, age, BMI, and cholesterol. It does not capture causal effects, incidence, or individual clinical status; BRFSS is cross-sectional and self-reported.
 
 \subsection{Contextual positioning within the literature}
-Our discrimination (AUC $0.8288$) is comparable to prior BRFSS-based studies reporting 0.72--0.80 \cite{xie2019}, with the improvement plausibly from the larger 2015 release and gradient boosting. Direct comparison is limited by differing years, features, and splits.
+Our discrimination (AUC $0.8288$) exceeds earlier BRFSS-based studies reporting 0.72--0.80 \cite{xie2019} and is close to NHANES-based non-invasive dysglycemia screening at AUC $0.820$ \cite{sun2026beyond}. It is also markedly more conservative than BRFSS studies reporting AUC near $0.99$ with stacked ensembles and resampling-based balancing \cite{pall2026comprehensive}, a gap we attribute to those pipelines' heavier preprocessing and split handling; our leakage audit shows that on this same 253{,}680-row dataset, duplicate profiles and fold construction move AUC by at most $0.006$, so we regard the higher figures as unlikely to be reproducible. Where an NHANES-trained model was externally validated on BRFSS, AUC fell from $0.794$ to $0.717$ under distribution shift \cite{pall2026comprehensive}; our in-domain 2015-to-later-wave transfer is milder (0.8338 to 0.8198), which is consistent with the absence of a cross-survey shift. For feature reduction, a copula tail-dependence filter on this same dataset reports AUC $0.823$ with 10 features \cite{aich2026copula}, against our $0.8231$ with 8 SHAP-ranked features; we compare selectors directly in Section~III-K. Direct comparison remains limited by differing years, features, splits, and label definitions, and we do not claim a decisive win.
+
+\subsection{What the diagnostics changed}
+The diagnostic work materially altered four claims. First, the age TPR gap is not a single number: it is $0.788$ over all 13 age bands but $0.144$ once bands with fewer than 500 positives are excluded, so we now report a support-restricted estimate rather than the headline value. Second, the model is not usable as a probability estimator without recalibration: the class-balancing weights that improve ranking simultaneously push mean predicted probability from $0.139$ to $0.376$, and isotonic recalibration on a held-out split restores ECE to $0.003$. Third, the AUC differences between the three models, though statistically significant, are too small to motivate a more complex model, which strengthens rather than weakens the case for the interpretable baseline; a randomized search confirms the ordering is not an artefact of our fixed settings. Fourth, the deployment operating point is portable: the threshold required to hold 85\% sensitivity moves only from $0.420$ to $0.395$ across the 2017--2021 waves, and Brier scores remain stable, so longitudinal screening does not require per-wave re-calibration. We also note that the most-cited BRFSS figures near AUC $0.99$ are not reproducible under a leakage-audited protocol on the same 253{,}680 rows, where we measure a maximum duplicate-profile effect of $0.006$.
 
 \subsection{Practical deployment scenarios}
-(1) Population-level risk stratification for outreach; (2) questionnaire triage in resource-limited settings; (3) hypothesis generation for public-health research. Each requires corroboration with clinical measurements before any individual decision.
+(1) Population-level risk stratification for outreach, using recalibrated probabilities and an explicit sensitivity target; (2) questionnaire triage in resource-limited settings, using the 8--10 item reduced form; (3) hypothesis generation for public-health research. Each requires corroboration with clinical measurements before any individual decision, and deployment should use age-stratified rather than global thresholds.
 
 \subsection{Methodological limitations and validity boundaries}
-Numbered: (1) self-reported cross-sectional data, no biomarkers (HbA1c, glucose); (2) race/ethnicity absent from this cleaned subset, limiting health-equity analysis; (3) BRFSS design weights not incorporated, limiting population-level representativeness; (4) 24{,}206 duplicate feature profiles retained (leakage sensitivity not yet quantified); (5) no calibration metrics reported; (6) no extensive hyperparameter search; (7) SHAP-based feature selection uses training-data rankings only after correction; (8) association, not causation; (9) screening, not diagnosis.
+Numbered: (1) self-reported cross-sectional data, no biomarkers (HbA1c, glucose); (2) race/ethnicity absent from this cleaned subset, limiting health-equity analysis; (3) BRFSS design weights not incorporated, so population-level representativeness is not established, and no design-based uncertainty quantification is attempted \cite{matabuena2024screening,wieczorek2023design}; (4) duplicate-profile leakage quantified as negligible (grouped versus stratified CV, $\Delta$AUC $=0.0001$) but not eliminated from the primary protocol; (5) calibration is restored post hoc rather than by design, and the recalibration map is fitted on a single 2015 split; (6) the randomized search budget is small and single-split; (7) the age TPR gap is reported with support-restricted estimates but a single global threshold is not age-equitable; (8) association, not causation; (9) screening, not diagnosis.
 
 \subsection{Prospects for future development}
-Temporal extension to 2017--2023 waves; inclusion of race/ethnicity from raw BRFSS files; external validation on clinical cohorts; uncertainty quantification; hybrid survey-plus-biomarker models; prospective evaluation.
+Incorporation of BRFSS design weights with design-based uncertainty quantification \cite{matabuena2024screening,wieczorek2023design}; inclusion of race/ethnicity from the raw BRFSS files; extension of the out-of-time analysis to the 2023 wave and to cross-survey validation against NHANES \cite{pall2026comprehensive}; age-stratified threshold policies with per-group calibration, following recent audit recommendations \cite{roy2026kaisen}; uncertainty quantification for individual screening decisions; and prospective evaluation with clinical biomarkers.
 
 \section{Conclusions}
-This study built an interpretable, fairness-aware screening framework for diabetes on 253{,}680 BRFSS respondents. Key substantive findings are: (1) gradient boosting and random forest modestly outperform logistic regression, but the gap is small (AUC 0.8288 vs. 0.8212); (2) clinical-history features dominate; (3) SHAP attributions align with established risk factors; (4) sex disparity is small, whereas age/income/education gaps track base rates. Appropriate use context: the tool is a screening-level, hypothesis-generating instrument for population triage and research, not a validated diagnostic or causal instrument.
+This study built an interpretable, fairness-aware screening framework for diabetes on 253{,}680 BRFSS respondents. Key substantive findings are: (1) gradient boosting and random forest outperform logistic regression by a statistically significant but practically negligible margin ($\Delta$AUC $\leq 0.0073$), so an interpretable baseline remains defensible; (2) clinical-history features dominate, and five SHAP-ranked items retain AUC $0.8186$; (3) SHAP attributions align with established risk factors; (4) duplicate-profile leakage is negligible ($\Delta$AUC $=0.0001$); (5) the balanced-weight model is badly miscalibrated (ECE $0.2367$) until post-hoc recalibration (ECE $0.0031$), which is a precondition for communicating any probability; (6) the sex disparity is small, while the large age TPR gap is concentrated in sparse strata and falls to $0.144$ under a minimum-support constraint, indicating that a single global threshold is not age-equitable; (7) the model transfers to later survey waves with AUC $0.8198$--$0.8338$. Appropriate use context: the tool is a screening-level, hypothesis-generating instrument for population triage and research, not a validated diagnostic or causal instrument.
 
 \section*{Acknowledgments}
 The authors thank the CDC for the BRFSS data and the UCI repository for hosting.
 
 \section*{Data Availability}
-The dataset is publicly available \cite{cdc2017}. Code and run manifests will be released on Zenodo/GitHub upon acceptance.
+The dataset is publicly available \cite{cdc2017}. All code, run manifests, and logged results are released at \url{https://github.com/Aldrin7/brfss-diabetes-screening-iccica2027}.
 
 \section*{Author Contributions}
 [TBD: CRediT statement.]
@@ -277,6 +359,24 @@ M. Hardt, E. Price, and N. Srebro, ``Equality of opportunity in supervised learn
 
 \bibitem{mehrabi2021}
 N. Mehrabi, F. Morstatter, N. Saxena, K. Lerman, and A. Galstyan, ``A survey on bias and fairness in machine learning,'' \textit{ACM Comput. Surv.}, vol. 54, no. 6, art. 115, 2021. \url{https://doi.org/10.1145/3457607}.
+
+\bibitem{sun2026beyond}
+B. Sun, C. Zhang, K. Ji, and X. Lu, ``Beyond the blood draw: Explainable machine learning for non-invasive dysglycemia risk screening,'' \textit{arXiv:2606.16056}, 2026.
+
+\bibitem{pall2026comprehensive}
+R. S. Pall, S. Yadav, S. Bhalerao, S. Sahu, R. Ahluwalia, and B. Awadhiya, ``Comprehensive evaluation of machine learning for type 2 diabetes risk prediction: Large-scale external validation and fairness analysis,'' in \textit{Proc. IEEE CIPHER}, 2026. \url{https://doi.org/10.1109/CIPHER70417.2026.11523789}.
+
+\bibitem{aich2026copula}
+A. Aich, M. M. Murshed, S. Hewage, and A. Mayeaux, ``A copula based supervised filter for feature selection in machine learning driven diabetes risk prediction,'' \textit{Sci. Rep.}, 2026. \url{https://doi.org/10.1038/s41598-026-41874-9}.
+
+\bibitem{matabuena2024screening}
+M. Matabuena, J. C. Vidal, R. Ghosal, and J.-P. Onnela, ``Screening for diabetes mellitus in the U.S. population using neural network models and complex survey designs,'' \textit{arXiv:2403.19752}, 2024.
+
+\bibitem{roy2026kaisen}
+S. Roy, S. Girmachew, and N. Chavan, ``KAISEN: Reproducible subgroup fairness auditing for clinical risk models,'' \textit{arXiv:2607.28608}, 2026.
+
+\bibitem{wieczorek2023design}
+J. Wieczorek, ``Design-based conformal prediction,'' \textit{Survey Methodology}, vol. 49, no. 2, pp. 305--322, 2023.
 
 \bibitem{brfss}
 Centers for Disease Control and Prevention, ``Behavioral Risk Factor Surveillance System,'' 2015 annual data. \url{https://www.cdc.gov/brfss/annual_data/annual_2014.html} (accessed on 17 Oct. 2026).

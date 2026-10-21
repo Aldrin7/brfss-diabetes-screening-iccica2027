@@ -1,6 +1,8 @@
-import os, sys, json, time, gc
+import os, sys, json, time, gc, functools
 import numpy as np
 import pandas as pd
+
+print = functools.partial(print, flush=True)
 from sklearn.model_selection import train_test_split, StratifiedKFold, StratifiedGroupKFold
 from sklearn.ensemble import HistGradientBoostingClassifier, RandomForestClassifier
 from sklearn.linear_model import LogisticRegression
@@ -111,9 +113,21 @@ def bootstrap_ci(y, p, groups, thr, n_boot=300, seed=42):
     return {"tpr_gap_ci95": ci(tpr_gaps), "fpr_gap_ci95": ci(fpr_gaps),
             "auc_ci95": ci(aucs), "n_boot": n_boot}
 
+OUTPATH = os.path.join(LOGS, "audit_results.json")
+
+def checkpoint(out):
+    save_json(out, OUTPATH)
+    print("  [checkpoint saved]", flush=True)
+
 def main():
     t0 = time.time()
     out = {}
+    if os.path.exists(OUTPATH):
+        try:
+            out = json.load(open(OUTPATH))
+            print("resuming with sections:", list(out.keys()), flush=True)
+        except Exception:
+            out = {}
     df = load_year(2015)
     y_all = df[TARGET].astype(int).values
 
@@ -169,6 +183,7 @@ def main():
         "dedup_test_auc_hgb": ded["HistGradientBoosting"]["roc_auc"],
         "original_test_auc_hgb": 0.8269}
     print("  delta (stratified - grouped) = %.4f" % out["leakage_sensitivity"]["delta"])
+    checkpoint(out)
 
     # ================= B. CALIBRATION =================
     print("\n=== B. Calibration ===", flush=True)
@@ -190,6 +205,7 @@ def main():
         cal["group_Income"]["ece"], cal["group_Education"]["ece"]))
     np.save(os.path.join(LOGS, "_calib_probs.npy"), p)
     Xte[["Sex","Age","Income","Education"]].to_csv(os.path.join(LOGS, "_calib_groups.csv"), index=False)
+    checkpoint(out)
 
     # ================= C. FAIRNESS DIAGNOSTICS =================
     print("\n=== C. Fairness diagnostics (supports, EOD, bootstrap CIs) ===", flush=True)
@@ -203,110 +219,11 @@ def main():
             fb["fpr_gap"], bs["fpr_gap_ci95"][0], bs["fpr_gap_ci95"][1],
             fb["min_group_n"], fb["min_group_n_pos"]))
     out["fairness_diagnostics"] = fair
+    checkpoint(out)
 
-    # ================= D. HYPERPARAMETER SEARCH =================
-    print("\n=== D. Hyperparameter randomized search ===", flush=True)
-    cv = StratifiedKFold(n_splits=3, shuffle=True, random_state=42)
-    search_res = {}
-    # HGB
-    pipe_h = hgb(42)
-    dist_h = {"learning_rate": [0.03,0.05,0.08,0.1,0.15], "max_leaf_nodes": [15,31,63],
-              "max_iter": [100,200,300], "min_samples_leaf": [20,40,80],
-              "l2_regularization": [0.0,0.1,1.0]}
-    rs_h = RandomizedSearchCV(pipe_h, dist_h, n_iter=20, cv=cv, scoring="roc_auc",
-                              random_state=42, n_jobs=1, refit=True)
-    rs_h.fit(Xtr, ytr)
-    search_res["HistGradientBoosting"] = {"best_params": {k: str(v) for k,v in rs_h.best_params_.items()},
-                                          "best_cv_auc": float(rs_h.best_score_)}
-    print("  HGB best cv AUC=%.4f params=%s" % (rs_h.best_score_, rs_h.best_params_))
-    # RF
-    pipe_r = RandomForestClassifier(n_estimators=100, class_weight="balanced", random_state=42, n_jobs=1)
-    dist_r = {"max_depth": [8,12,16,20,None], "min_samples_leaf": [5,10,20,40],
-              "max_features": ["sqrt", 0.5, 0.8]}
-    rs_r = RandomizedSearchCV(pipe_r, dist_r, n_iter=10, cv=cv, scoring="roc_auc",
-                              random_state=42, n_jobs=1, refit=True)
-    rs_r.fit(Xtr, ytr)
-    search_res["RandomForest"] = {"best_params": {k: str(v) for k,v in rs_r.best_params_.items()},
-                                   "best_cv_auc": float(rs_r.best_score_)}
-    print("  RF  best cv AUC=%.4f params=%s" % (rs_r.best_score_, rs_r.best_params_))
-    # LR
-    pipe_l = Pipeline([("s", StandardScaler()),
-                       ("c", LogisticRegression(max_iter=2000, class_weight="balanced", random_state=42))])
-    dist_l = {"c__C": [0.01,0.1,1.0,10.0,100.0], "c__solver": ["lbfgs","liblinear"],
-              "c__penalty": ["l2"]}
-    rs_l = RandomizedSearchCV(pipe_l, dist_l, n_iter=10, cv=cv, scoring="roc_auc",
-                              random_state=42, n_jobs=1, refit=True)
-    rs_l.fit(Xtr, ytr)
-    search_res["LogisticRegression"] = {"best_params": {k: str(v) for k,v in rs_l.best_params_.items()},
-                                        "best_cv_auc": float(rs_l.best_score_)}
-    print("  LR  best cv AUC=%.4f params=%s" % (rs_l.best_score_, rs_l.best_params_))
-    out["hyperparameter_search"] = search_res
+    out['elapsed_s'] = round(time.time()-t0, 1)
+    save_json(out, OUTPATH)
+    print('Total elapsed: %.1f s' % (time.time()-t0), flush=True)
 
-    # ================= E. PER-WAVE THRESHOLD RE-OPTIMIZATION + DRIFT =================
-    print("\n=== E. Per-wave threshold re-optimization + drift ===", flush=True)
-    mfull = hgb(42); mfull.fit(df[FEATURES], df[TARGET].astype(int))
-    waves = {}
-    for yr in [2017, 2019, 2021]:
-        te = load_year(yr)
-        Xw = te[FEATURES]; yw = te[TARGET].astype(int).values
-        pw = mfull.predict_proba(Xw)[:,1]
-        best = None
-        for t in np.linspace(0.01, 0.99, 197):
-            pr = (pw >= t).astype(int)
-            s = ((pr==1)&(yw==1)).sum()/max((yw==1).sum(),1)
-            if s >= 0.85: best = t
-        if best is None: best = 0.01
-        pr = (pw >= best).astype(int)
-        sens = ((pr==1)&(yw==1)).sum()/max((yw==1).sum(),1)
-        spec = ((pr==0)&(yw==0)).sum()/max((yw==0).sum(),1)
-        # drift vs 2015
-        d_mean = float(pw.mean() - p.mean())
-        waves[str(yr)] = {"n": int(len(te)), "prevalence": float(yw.mean()),
-                          "roc_auc": float(roc_auc_score(yw, pw)),
-                          "thr_for_sens085": float(best), "sens": float(sens), "spec": float(spec),
-                          "mean_pred": float(pw.mean()),
-                          "pred_shift_vs_2015": d_mean,
-                          "brier": float(brier_score_loss(yw, pw))}
-        print("  %d: AUC=%.4f prev=%.3f thr(0.85)=%.3f sens=%.3f spec=%.3f brier=%.4f predshift=%+.4f" % (
-            yr, waves[str(yr)]["roc_auc"], waves[str(yr)]["prevalence"], best, sens, spec,
-            waves[str(yr)]["brier"], d_mean))
-    out["wave_drift"] = waves
-
-    # ================= F. ALTERNATIVE FEATURE SELECTORS =================
-    print("\n=== F. Feature selector comparison (k=10) ===", flush=True)
-    import shap
-    mt = hgb(42); mt.fit(Xtr, ytr)
-    sv = shap.TreeExplainer(mt).shap_values(Xtr.sample(2000, random_state=42))
-    if isinstance(sv, list): sv = sv[1]
-    shap_rank = [FEATURES[i] for i in np.argsort(np.abs(np.array(sv)).mean(axis=0))[::-1]]
-    mi = mutual_info_classif(Xtr.values, ytr.values, random_state=42, n_neighbors=5)
-    mi_rank = [FEATURES[i] for i in np.argsort(mi)[::-1]]
-    corr = np.array([abs(np.corrcoef(Xtr[c].values, ytr.values)[0,1]) for c in FEATURES])
-    corr_rank = [FEATURES[i] for i in np.argsort(corr)[::-1]]
-    sel = {}
-    for k in [10]:
-        for name, rank in [("shap", shap_rank), ("mutual_info", mi_rank), ("correlation", corr_rank)]:
-            feats = rank[:k]
-            mm = hgb(42); mm.fit(Xtr[feats], ytr)
-            pr = mm.predict_proba(Xte[feats])[:,1]
-            sel["%s_k%d" % (name, k)] = {"auc": float(roc_auc_score(yte.values, pr)),
-                                         "features": feats}
-            print("  %-14s k=%d AUC=%.4f" % (name, k, sel["%s_k%d" % (name, k)]["auc"]))
-    # random baseline
-    rng = np.random.default_rng(42); aucs_r = []
-    for _ in range(5):
-        feats = list(rng.choice(FEATURES, 10, replace=False))
-        mm = hgb(42); mm.fit(Xtr[feats], ytr)
-        pr = mm.predict_proba(Xte[feats])[:,1]
-        aucs_r.append(float(roc_auc_score(yte.values, pr)))
-    sel["random_k10"] = {"auc_mean": float(np.mean(aucs_r)), "auc_std": float(np.std(aucs_r, ddof=1))}
-    print("  random k=10 AUC=%.4f +/- %.4f" % (np.mean(aucs_r), np.std(aucs_r, ddof=1)))
-    out["feature_selectors"] = sel
-
-    out["elapsed_s"] = round(time.time()-t0, 1)
-    save_json(out, os.path.join(LOGS, "audit_results.json"))
-    print("\nTotal elapsed: %.1f s" % (time.time()-t0))
-    print("saved audit_results.json")
-
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()
