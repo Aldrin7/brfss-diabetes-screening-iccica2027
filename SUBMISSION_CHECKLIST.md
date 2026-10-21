@@ -89,8 +89,8 @@ undefined citations or cross-references.
 
 - [x] Page size US Letter, two columns, IEEEtran 10pt, margins per the CFP
 - [x] <= 6 pages including figures, tables and references (no over-length charge)
-- [x] All numbers in the manuscript machine-verified against the logged runs (110 checks, 0 failures)
-- [x] No undefined citations, no undefined references, no unused labels
+- [x] All numbers in the manuscript machine-verified against the logged runs (121 checks: 69 + 41 + 11, 0 failures)
+- [x] No undefined citations, no undefined references, no unused labels, no unused bibliography entries
 - [x] Figures at >= 300 DPI (effective 578-737 DPI at placed size)
 - [x] All interpretability plots contain only the 21 BRFSS features (verified for the round-6 review point)
 - [x] Anonymized build contains no author name, affiliation, e-mail or repository URL
@@ -98,7 +98,7 @@ undefined citations or cross-references.
 - [x] Ethics statement (public CC0 data, no IRB required) inside the Data and Code Availability section
 - [x] No unresolved placeholders in the manuscript except the author block
 - [x] Data and Code Availability restated to "held in a private repository for review and will be made public on acceptance" (matches the 404 on the public URL)
-- [x] Round-6 review points answered in `paperreview_responses_round6.md`; round-8 verification review on the 6-page build
+- [x] Eight review rounds completed; round 8 (run on the 6-page submission artifact) recommends acceptance after minor revisions, and all eight questions are answered in `paperreview_responses_round8.md` — the contradicting-label caveat, per-band AUC/ECE/net benefit, per-group calibration transport, Venn–Abers detail, SaML and multi-task citations are all in the paper
 
 
 ## 8. After acceptance (timeline)
