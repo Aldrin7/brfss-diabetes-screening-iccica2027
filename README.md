@@ -36,10 +36,27 @@ python src/gateA_verify.py         # Gate A data verification
 python src/make_figures.py         # confusion matrix + fairness aggregate
 python src/make_audit_figures.py   # calibration / leakage / fairness / drift / selector figures
 python src/make_dca_figure.py      # decision-curve net benefit figure
-python src/make_pdf.py             # render manuscript.pdf for external review
+python src/compile_ieee.py         # REAL IEEEtran build + page-count check (authoritative PDF)
+python src/compile_ieee.py --anon  # also build the double-blind anonymized PDF
+python src/make_anon.py            # anonymized double-blind PDF only
 python src/check_tex.py            # LaTeX structure / citation / cross-reference check
 python src/audit_numbers.py        # machine-check every number in the manuscript against run logs
 ```
+
+## Camera-ready PDF (authoritative)
+`manuscript.pdf` and `manuscript_anon.pdf` at the repository root are **true IEEEtran
+builds** (US Letter, two-column, 10pt), not the legacy ReportLab review mock
+(`src/make_pdf.py`, still kept for quick visual diffs). Regenerate both with:
+
+```bash
+python src/compile_ieee.py --anon --max 6
+```
+
+`compile_ieee.py` exits non-zero if the paper exceeds the 6-page ICCICA 2027 limit
+(including figures, tables and references) and prints over/underfull box warnings.
+`src/make_anon.py` strips the author block, the repository URL and the author name from
+the bibliography, and verifies that no identifier remains in the output.
+
 
 ## Outputs
 - results/logs/results.json — per-seed metrics, fairness, ablation
@@ -49,8 +66,27 @@ python src/audit_numbers.py        # machine-check every number in the manuscrip
 - results/logs/shap.json, fairness_agg.json, gateA_report.json
 - results/figures/*.png, figures/*.png
 - manuscript.tex — IEEE conference manuscript (authoritative source)
-- manuscript.pdf — two-column review render (mimics IEEEtran; not the camera-ready)
-- paperreview_review_round*.md — external review rounds
+- manuscript.pdf — IEEEtran build, 6 pages, for camera-ready use
+- manuscript_anon.pdf — anonymized double-blind build, 6 pages, for the CMT submission
+- paperreview_review_round*.md, paperreview_responses_round6.md — external review rounds
+  and the point-by-point response record
+
+## Submission target
+ICCICA 2027 (3rd International Conference on Computational Intelligence & Computing
+Applications), 11-12 March 2027, PIET Samalkha, Haryana, India; technically sponsored by
+IEEE Delhi Section; IEEE Xplore, Conference Record No. 73185.
+
+| Item | Requirement | State |
+|---|---|---|
+| Format | US Letter, IEEEtran conference, 2-column, 10pt, 0.75in margins (1in top on title page) | met (612x792 pt, verified) |
+| Length | <= 6 pages incl. figures, tables, references | met (6 pages, both builds) |
+| Extra pages | up to 2 allowed at INR 1,000/page | not needed |
+| Review | double-blind, min. 3 reviewers, IEEE plagiarism check | anonymized build provided |
+| Submission | Microsoft CMT: `cmt3.research.microsoft.com/ICCICA2027/Submission/Index` | author action |
+| Track | Track 4 - Data Science, Machine Learning and Deep Learning | selected |
+| Dates | submission 12 Oct 2026 (extension granted), notification 15 Dec 2026, camera-ready 1 Jan 2027, early registration 27 Jan 2027, late 10 Feb 2027 | from the official CFP |
+| Registration | student INR 7,400/9,000; regular INR 9,000/11,000; co-author INR 1,500; one author must register | author action |
+
 
 ## Seeds
 42, 7, 123, 2024, 99 (reported as mean +/- std).
