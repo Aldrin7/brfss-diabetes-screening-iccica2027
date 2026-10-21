@@ -29,9 +29,9 @@ import subprocess
 import sys
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-BUILD = os.path.join(ROOT, "build")
-TEX = os.path.join(ROOT, "manuscript.tex")
-FIGS = [os.path.join(ROOT, "figures"), os.path.join(ROOT, "results", "figures")]
+BUILD = os.path.join(ROOT, "manuscript", "build")
+TEX = os.path.join(ROOT, "manuscript", "manuscript.tex")
+FIGS = [os.path.join(ROOT, "assets", "figures"), os.path.join(ROOT, "results", "figures")]
 
 SYMBOLS = [
     (r"\{,\}", ","), (r"\%", "%"), (r"\times", "\u00d7"), (r"\pm", "\u00b1"),
@@ -367,8 +367,10 @@ def main():
     tmp = os.path.join(BUILD, "manuscript_docx.tex")
     open(tmp, "w", encoding="utf-8").write(cleaned)
 
-    name = args.out or ("manuscript_2col.docx" if args.twocol else "manuscript.docx")
-    out = os.path.join(ROOT, name)
+    name = args.out or os.path.join("manuscript", "build",
+                                "manuscript_2col.docx" if args.twocol else
+                                "manuscript_singlecol.docx")
+    out = name if os.path.isabs(name) else os.path.join(ROOT, name)
     run_pandoc(tmp, out)
     postprocess(out, twocol=args.twocol)
 

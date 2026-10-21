@@ -26,7 +26,7 @@ while time.time() < deadline:
                 md += "Venue: %s | Submitted: %s | Reviewed: %s\n\n" % (
                     data.get("venue", ""), data.get("submission_date", ""), data.get("review_date", ""))
                 md += data.get("content", "")
-                open(os.path.join(ROOT, "paperreview_review_round%d.md" % rnd), "w", encoding="utf-8").write(md)
+                open(os.path.join(ROOT, "reviews", "paperreview_review_round%d.md" % rnd), "w", encoding="utf-8").write(md)
                 print("ROUND %d READY -> paperreview_review_round%d.md (%d chars)" % (rnd, rnd, len(md)), flush=True)
                 del tokens[rnd]
         except urllib.error.HTTPError as e:

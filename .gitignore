@@ -12,5 +12,12 @@ Prompt collection/
 results/logs/tempmail.json
 results/logs/paperreview_token_round*.json
 
+# build scratch (intermediate LaTeX/Word/figure copies)
 build/
+manuscript/build/
 
+# local secrets
+.env
+
+# local credentials (never committed)
+.secrets/

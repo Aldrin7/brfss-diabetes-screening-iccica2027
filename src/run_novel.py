@@ -9,7 +9,7 @@ from utils import set_seed, ensure_dir, save_json
 from preprocessing import FEATURES, TARGET
 from fairness import compute_metrics
 
-ROOT = os.path.dirname(os.path.abspath(__file__))
+ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 RAW = os.path.join(ROOT, "data", "raw")
 MULTI = os.path.join(RAW, "brfss_multi")
 RESULTS = os.path.join(ROOT, "results")

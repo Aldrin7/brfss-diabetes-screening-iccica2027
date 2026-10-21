@@ -7,11 +7,11 @@ from reportlab.platypus import (BaseDocTemplate, PageTemplate, Frame, Paragraph,
                                 Table, TableStyle, Image, KeepTogether, FrameBreak)
 from reportlab.lib.enums import TA_LEFT, TA_CENTER, TA_JUSTIFY
 
-ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-TEX = os.path.join(ROOT, "manuscript.tex")
-OUT = os.path.join(ROOT, "manuscript.pdf")
+ROOT = os.path.dirname(os.path.abspath(__file__))
+TEX = os.path.join(ROOT, "manuscript", "manuscript.tex")
+OUT = os.path.join(ROOT, "manuscript", "manuscript.pdf")
 FIGS = os.path.join(ROOT, "results", "figures")
-FIGDIR = os.path.join(ROOT, "figures")
+FIGDIR = os.path.join(ROOT, "assets", "figures")
 
 raw = open(TEX, encoding="utf-8").read()
 raw = re.sub(r"%.*", "", raw)

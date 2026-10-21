@@ -1,0 +1,270 @@
+===========================================================================
+   AUTHOR WRITING STYLE GUIDE (TOPIC-NEUTRAL, REUSABLE)
+   Derived from a published empirical ML paper (MDPI "World", 2026)
+===========================================================================
+Purpose: Tell an AI how to draft new manuscripts so they read like this
+author's published work. It governs STRUCTURE, VOICE, and RECURRING
+MOVES only. It never overrides the integrity rules of the Unified Master
+Prompt: a style rule must not be used to imply a result, a citation, or a
+validation that was not actually obtained. Do not copy sentences from the
+source paper; reproduce the style, not the text.
+
+Companion: Unified_Research_Paper_Master_Prompt.txt (append this guide to
+it as "Part 8B", or paste it right after Part 8).
+
+
+---------------------------------------------------------------------------
+1. OVERALL IDENTITY OF THE STYLE
+---------------------------------------------------------------------------
+- Formal, cautious, policy-aware academic prose. First-person plural
+  ("we") for decisions and acknowledgments; passive voice for procedures.
+- The paper positions itself as a SCREENING / DIAGNOSTIC / EXPLORATORY
+  tool, never as a causal, forecasting, or "policy-ready" instrument.
+- Honesty about limits is a feature of the voice: limitations are
+  announced in the section where the choice is made, then consolidated
+  in a dedicated limitations subsection.
+- Recurring thesis pattern: "complements, not replaces" existing expert
+  or mechanistic methods; "associations, not causal effects";
+  "hypothesis-generating, not diagnostic".
+- Practical or societal framing (e.g., policy use, SDG alignment) appears
+  in the abstract, introduction, discussion, and conclusion.
+
+
+---------------------------------------------------------------------------
+2. DOCUMENT SKELETON (MIRROR THIS ORDER AND NUMBERING)
+---------------------------------------------------------------------------
+TITLE      "Topic Phrase: An Interpretable [Method] Framework for [Task A]
+           and [Task B]" -- colon structure, descriptive, no hype words.
+
+ABSTRACT   One dense paragraph (about 250-300 words, or the venue limit),
+           in this fixed sequence:
+             1. Problem context and why it matters (1-2 sentences)
+             2. The need ("Practitioners require tools that are
+                reproducible, transparent, grounded in open data")
+             3. What this study presents, data scope (counts, years),
+                model with software version
+             4. Training vs. held-out evaluation design
+             5. Features used, with one-clause caveats on proxies
+             6. Headline metrics (actual numbers with units)
+             7. Ablation findings
+             8. One "Notably," sentence on a surprising or humbling
+                finding (e.g., a simple baseline matching the complex
+                model)
+             9. Explainability finding
+            10. Sensitivity/scenario finding, labeled "stylized"
+            11. Diagnostic / residual finding
+            12. Explicit scope sentence: "designed as a ... rather than a
+                validated causal or forecasting instrument"
+            13. Complement-not-replace statement and societal-goal link
+           Keywords: 8-10, from broad to specific.
+
+1. INTRODUCTION (numbered subsections)
+   1.1 Problem context and practical/policy requirements
+       - Close with a numbered or (i)-(iv) list of what a usable tool
+         must satisfy.
+   1.2 Determinants of the outcome: what drives it beyond the headline
+       factor (mechanisms, then non-primary drivers)
+   1.3 Methodological approaches: comparative strengths AND limitations
+       of each family (process-based / statistical / ML)
+   1.4 Interpretability, transparency, and credibility for consequential
+       use; state the design choices that respond (validation design,
+       explainability method)
+   1.5 Research objectives and contributions
+       - "This paper addresses three interrelated research questions:"
+         numbered list, each with a bold-style topic label and a
+         colon ("Yield driver identification: What ...?")
+       - "We have made the following contributions: (i) ...; (ii) ...;
+         (iii) ...; (iv) ..." using roman numerals in one sentence
+       - End with the positioning sentence (screening-level, complements
+         expert and causal work)
+
+2. MATERIALS AND METHODS (numbered, short, single-purpose subsections)
+   2.1 Data sources and scope (+ a "Scope and limitations of [unit of
+       analysis]" paragraph)
+   2.2 Variables (+ Table 1: Variable / Description / Unit / Source; and a
+       caveat paragraph with (i)(ii)(iii) on proxy variables)
+   2.3 Data preparation and exploratory characterization
+       - sample-flow schematic in one sentence with arrows:
+         "N raw → n excluded for X → N final"
+       - missingness structure examined; representativeness caveat
+       - encoding choices stated with their trade-off
+   2.4 Feature engineering (bullets for each constructed feature, then a
+       bold-style "Temporal validity" statement explaining no leakage)
+   2.5 Validation strategy (blockwise/temporal split; why random split
+       would be optimistic; acknowledge single-split limitation and point
+       forward to the future-work section)
+   2.6 Model selection: primary + benchmarks, with one sentence on why the
+       simplest baseline is methodologically important
+   2.7 Hyperparameter optimization (search method, folds, bullet list of
+       search spaces, honest note on search depth and CV design)
+   2.8 Evaluation framework: metrics defined with one-clause rationale
+       each; bullet list of ablation variants; "does not constitute
+       external validation" sentence
+   2.9 Explainability method (+ stability check description + an
+       "Interpretive boundaries" paragraph on multicollinearity and
+       approximation uncertainty)
+   2.10 Scenario / perturbation analysis (bullets for each scenario +
+       a "Critical caveat" paragraph)
+   2.11 Software implementation and transparency (languages, packages,
+       versions)
+
+3. RESULTS (numbered; interpretation labeled and separated)
+   3.1 Predictive performance and final configuration (bullets of the
+       headline metrics with units)
+   3.2 Ablation (Table 2 = specification vs. metric, sorted best to
+       worst), then an "Interpretation and implications" paragraph
+   3.3 Explainability findings as a numbered list with bold-style lead-ins
+   3.4 Residual / diagnostic analysis (Table 3), then an "Interpretive
+       caution" paragraph
+   3.5 Scenario analysis (the formula in display form, Table 4), then a
+       "Caveats and boundary conditions" paragraph
+
+4. DISCUSSION
+   4.1 What the model is capturing (and what it is not)
+   4.2 Contextual positioning within the existing literature
+   4.3 Practical deployment scenarios (numbered, each ending with the
+       corroboration requirement)
+   4.4 Methodological limitations and validity boundary conditions
+       (numbered, each with a bold-style topic label: spatial
+       aggregation / data currency / variable coarseness / scenario
+       validity / correlation vs. causation / validation completeness)
+   4.5 Prospects for future development (bold-style labels: temporal
+       extension, feature enrichment, better inputs, validation rigor,
+       uncertainty quantification, hybrid approaches)
+
+5. CONCLUSIONS
+   - One-sentence restatement of what was done.
+   - "Key substantive findings are:" numbered, each with a bold-style
+     lead-in label and 2-3 sentences.
+   - Closing paragraph labeled "Appropriate use context", ending with a
+     short contrast sentence ("It is a screening tool, not a ...").
+
+BACK MATTER (MDPI-style order): Author Contributions (CRediT, initials),
+Funding, Institutional Review Board Statement, Informed Consent
+Statement, Data Availability Statement (URL + access date),
+Acknowledgments, Conflicts of Interest, Abbreviations table, References,
+Publisher's note.
+
+
+---------------------------------------------------------------------------
+3. VOICE AND SENTENCE-LEVEL HABITS
+---------------------------------------------------------------------------
+Characteristic constructions (use freely):
+  - Hedged verbs: "suggests", "indicates", "is consistent with",
+    "corroborates", "may reflect", "plausibly explained by".
+  - Acknowledgment openers: "We acknowledge that...", "We note that...",
+    "We caution against...", "We emphasize several caveats...".
+  - Contrast framing: "X does not imply Y; rather, it reflects Z."
+  - Dual-label terms: "hypothesis-generating diagnostic flags",
+    "stylized sensitivity probes", "screening-level diagnostics",
+    "conditional predictive associations".
+  - Enumerations inline with (i), (ii), (iii) inside a sentence, and
+    numbered lists for research questions, findings, and limitations.
+  - Cross-references by section number ("discussed in Section 4.4",
+    "future extension (Section 4.5)").
+  - Bold-style lead-in phrases at the start of a paragraph to flag its
+    function: "Temporal validity.", "Critical caveat:", "Interpretive
+    boundaries.", "Interpretation and implications.", "Caveats and
+    boundary conditions.", "Appropriate use context."
+  - Citations as numbered brackets in order of first appearance, with
+    ranges: [1-7], [4,6,7].
+  - Long, multi-clause sentences with parenthetical examples
+    ("(e.g., irrigated vs. rainfed systems, regional drought pockets)").
+  - Units spaced from values (11,183 hg/ha); degree symbol (+1 °C);
+    true minus signs (−20%); en-dash ranges (1990–2013).
+  - Tables: caption ABOVE. Figures: caption BELOW, multi-panel as
+    "(a) ... (b) ...".
+
+Tone rules:
+  - No "novel", "state-of-the-art", "groundbreaking", "policy-ready".
+  - Describe what was done rather than praising it.
+  - Always pair a positive result with the sentence that bounds it.
+
+
+---------------------------------------------------------------------------
+4. RECURRING RHETORICAL MOVES (REUSE THE MOVE, NOT THE WORDS)
+---------------------------------------------------------------------------
+ 1. The humble-baseline move: include a simple baseline on purpose and
+    report honestly if it matches the complex model; then reinterpret the
+    contribution accordingly.
+ 2. The ablation-as-explanation move: remove feature groups and report the
+    absolute drop in the metric, with one sentence on what the drop means.
+ 3. The "does not mean X" move: pre-empt misreadings of a negative or weak
+    result (e.g., weak signal at coarse resolution does not mean the
+    factor is unimportant).
+ 4. The proxy-caveat move: whenever a variable stands in for a concept,
+    state what it captures and what it misses, in (i)(ii)(iii) form.
+ 5. The association-not-causation move: repeat once per analysis type
+    (model, attribution, scenario, residuals), tailored to each.
+ 6. The stylized-scenario move: label all perturbation analyses as
+    sensitivity probes, bounded by the historical feature range, not
+    projections.
+ 7. The residuals-as-hypotheses move: treat systematic errors as flags for
+    investigation, never as diagnoses.
+ 8. The complement-not-replace close: end sections and the paper by
+    placing the tool alongside expert, subnational, mechanistic, and
+    causal methods.
+ 9. The currency move: state the data period and say what has changed
+    since, and what updated data would be used next.
+
+
+---------------------------------------------------------------------------
+5. SUGGESTED REFINEMENTS (KEEP THE STYLE, FIX COMMON WEAK SPOTS)
+---------------------------------------------------------------------------
+These keep the voice while aligning it with the integrity and rulebook
+requirements in the Unified Master Prompt.
+
+ a) Say each caveat once in full, then refer back by section number.
+    The same distribution-shift / "screening tool" sentence should not
+    appear in four places.
+ b) Support every "we found / no pattern identified / results were
+    similar" sentence with a number or table (e.g., report the spread
+    across replicates, not just "similar").
+ c) Make sure every number in figures, tables, text, and abstract is
+    identical. After finalizing, search for each headline metric and
+    confirm all occurrences match, including numbers printed inside
+    figures.
+ d) Make sure the figure count in text matches what is plotted ("six most
+    impactful features" must show six).
+ e) Report variance (mean ± std over seeds/folds) and significance tests
+    for any comparison; label single-run numbers as pilot.
+ f) Do not claim robustness or "strength of attribution patterns" from a
+    small number of replicates; describe what was done and let the
+    reader judge.
+ g) Prefer plain verbs over stacked intensifiers ("substantially",
+    "pronounced", "precipitates substantial degradation" -> "R² fell
+    from 0.982 to 0.940").
+ h) Avoid vague quantifiers ("overwhelming share") unless the share is
+    computed and reported.
+ i) Check mojibake and symbol corruption in equations (e.g., a Δ or ×
+    rendering as stray characters) before submission; render equations
+    properly.
+ j) Use defined terms consistently (e.g., "decile" vs. "top ten
+    countries"; "temporal validation" vs. "test set").
+ k) Keep every claim about what was run in the Methods identical to what
+    the code actually did (CV scheme, encodings, sample counts, which
+    exclusions overlap and by how much).
+
+
+---------------------------------------------------------------------------
+6. PASTE-IN BLOCK FOR THE UNIFIED PROMPT (PART 8B)
+---------------------------------------------------------------------------
+"AUTHOR WRITING STYLE. Draft the manuscript in this author's style:
+formal, cautious, policy-aware prose using 'we' for decisions and passive
+voice for procedures. Follow the numbered section skeleton in Section 2 of
+the attached Author_Writing_Style_Guide: a colon-structured descriptive
+title; a single-paragraph abstract following the fixed 13-step sequence;
+an Introduction with subsections 1.1-1.5 ending in numbered research
+questions and an (i)-(iv) contributions sentence; Methods in short,
+single-purpose numbered subsections with labeled caveat paragraphs;
+Results that separate findings from 'Interpretation and implications';
+a Discussion with limitations as a numbered list of labeled items; a
+Conclusion with numbered key findings and an 'Appropriate use context'
+close; and the full back matter. Use hedged verbs, 'We acknowledge/We
+caution' openers, bold-style lead-in labels, numbered bracket citations in
+order, and the recurring rhetorical moves in Section 4. Apply the
+refinements in Section 5. Never use style as a reason to state an
+unmeasured number, an unverified citation, or an unrun analysis; the
+integrity rules in Part 2 always take precedence. Do not reuse sentences
+from any prior paper."
+===========================================================================

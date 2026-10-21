@@ -13,7 +13,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "src
 from utils import ensure_dir, save_json
 from preprocessing import FEATURES, TARGET
 
-ROOT = os.path.dirname(os.path.abspath(__file__))
+ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 RAW = os.path.join(ROOT, "data", "raw")
 LOGS = os.path.join(ROOT, "results", "logs")
 ensure_dir(LOGS)

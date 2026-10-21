@@ -1,118 +1,154 @@
-# Diabetes Screening from BRFSS 2015 — ICCICA 2027
+# ICCICA 2027 — BRFSS diabetes screening audit
 
-Reproducible pipeline for the manuscript:
-"An Interpretable, Fairness-Aware Machine Learning Framework for Diabetes Screening from Population Health Surveys: Leakage, Calibration, and Fairness Audits".
+**"What the Audits Change: An Interpretable and Fairness-Aware Screening Framework for
+Diabetes from Population Health Surveys"**
 
-## Data
-CDC Diabetes Health Indicators (BRFSS 2015), UCI ML Repository, DOI 10.24432/C53919.
-Download via Kaggle: `alexteboul/diabetes-health-indicators-dataset` -> place
-`diabetes_binary_health_indicators_BRFSS2015.csv` in `data/raw/`.
-Out-of-time waves (2017/2019/2021) come from Kaggle `vanthieu/diabetes-health-indicators-brfss-2015-2023`
--> place the unzipped files in `data/raw/brfss_multi/`.
+An auditable, reproducible screening study on the CDC BRFSS 2015 diabetes dataset
+(`n = 253,680`, 21 features). The contribution is the audit layer: leakage reconciliation,
+calibration, fairness with supports, threshold-transfer failure, and the deployment
+consequences of each. Every number printed in the manuscript is machine-checked against the
+logged runs.
 
-## Setup
-```bash
-python -m venv .venv
-.venv\Scripts\activate
+---
+
+## Repository layout
+
+```
+PIET Conference/
+├── README.md                    this file
+├── requirements.txt             pinned Python dependencies
+├── .gitignore
+│
+├── manuscript/                  THE PAPER
+│   ├── manuscript.tex           authoritative source (LaTeX)
+│   ├── manuscript.docx          on the conference A4 template  <- primary Word artifact
+│   ├── manuscript.pdf           A4, single column, exported from that .docx  <- primary PDF
+│   ├── manuscript_anon.docx     anonymized double-blind Word version
+│   ├── manuscript_anon.pdf      anonymized double-blind PDF  <- upload this to CMT
+│   └── build/                   intermediates (gitignored)
+│
+├── templates/
+│   └── conference-template-a4.docx   the venue's own Word template (input, never edited)
+│
+├── src/                         ALL CODE
+│   ├── run_pipeline.py          main experiment: 3 models x 5 seeds, fairness, ablation
+│   ├── run_novel.py             temporal validation, minimal questionnaire, thresholds
+│   ├── run_audit.py ... run_audit13.py   the numbered audit stages (leakage, calibration,
+│   │                                   fairness, drift, thresholds, diagnosis, ...)
+│   ├── preprocessing.py         feature list, loading, splits
+│   ├── models.py                LR / RF / HGB definitions
+│   ├── fairness.py              group metrics and gap computation
+│   ├── utils.py
+│   ├── explain.py               SHAP analysis
+│   ├── make_figures.py          paper + analysis figures
+│   ├── make_audit_figures.py    calibration / leakage / fairness / drift / selector figures
+│   ├── make_dca_figure.py       decision-curve net benefit figure
+│   ├── make_template_docx.py    build the paper on the conference template
+│   ├── make_anon.py             anonymized IEEEtran PDF (alternate format)
+│   ├── make_docx.py             pandoc-based Word export (legacy, writes to build/)
+│   ├── compile_ieee.py          real IEEEtran build with a page-count gate (alternate format)
+│   ├── check_tex.py             LaTeX structure / citation / cross-reference check
+│   ├── audit_numbers.py         machine-check every printed number against the run logs
+│   ├── audit_round8.py          per-band AUC/ECE/net-benefit and calibration transport
+│   ├── gateA_verify.py          dataset integrity gate
+│   └── paperreview_submit.py / paperreview_poll.py / paperreview_poll_all.py
+│
+├── data/                        raw + processed datasets (gitignored; CC0 source data)
+│
+├── results/
+│   ├── logs/                    provenance: one JSON per run, all committed
+│   └── figures/                 analysis figures used in the paper
+│
+├── assets/
+│   └── figures/                 paper figures (SHAP, DCA, calibration, fairness, ...)
+│
+├── reviews/                     eight external review rounds + point-by-point responses
+│
+├── docs/
+│   ├── Research_Plan_ICCICA2027.md
+│   └── SUBMISSION_CHECKLIST.md  what is done, what only the author can do
+│
+└── archive/
+    ├── ieeetran_2col/           the superseded two-column IEEEtran PDFs
+    └── legacy_pandoc/           superseded pandoc Word exports + the ReportLab mock
+```
+
+---
+
+## Reproduce
+
+```powershell
+python -m venv .venv ; .\.venv\Scripts\Activate.ps1
 pip install -r requirements.txt
+
+python src/run_pipeline.py       # main experiment -> results/logs/results.json
+python src/run_novel.py          # temporal + minimal-form experiments
+python src/run_audit.py          # ... through run_audit13.py, one audit per script
+python src/audit_round8.py       # round-8 review computations
+python src/make_figures.py ; python src/make_audit_figures.py ; python src/make_dca_figure.py
 ```
 
-## Run
-```bash
-python run_pipeline.py             # 5 seeds x 3 models + ablation (~4 min)
-python run_novel.py                # temporal validation, minimal questionnaire, threshold opt (~1.5 min)
-python run_audit.py                # leakage sensitivity, calibration, fairness w/ inference (~10 min)
-python run_audit2.py               # hyperparameter search, wave drift, feature selectors (~20 min)
-python run_audit3.py               # post-hoc recalibration, age-gap robustness (~15 s)
-python run_audit4.py               # paired AUC bootstrap, scenario probes (~4 min)
-python run_audit5.py               # leakage protocols, 4 calibrators, AUPRC, decision curve (~12 min)
-python run_audit5b.py              # SHAP stability, design effect, severity strata (~2 min)
-python run_audit6.py               # per-wave calibration transport + subgroup drift (~3 min)
-python run_audit7.py               # group-specific thresholds, scenario subgroups, manifest (~1 min)
-python run_audit8.py               # constrained threshold selection, severity stratification (~25 s)
-python run_audit9.py               # transport vs refit calibration per wave (~40 s)
-python src/explain.py              # SHAP + figure
-python src/gateA_verify.py         # Gate A data verification
-python src/make_figures.py         # confusion matrix + fairness aggregate
-python src/make_audit_figures.py   # calibration / leakage / fairness / drift / selector figures
-python src/make_dca_figure.py      # decision-curve net benefit figure
-python src/compile_ieee.py         # REAL IEEEtran build + page-count check (authoritative PDF)
-python src/compile_ieee.py --anon   # also build the double-blind anonymized PDF
-python src/make_anon.py            # anonymized double-blind PDF only
-python src/make_docx.py            # Word version (single column, editable)
-python src/make_docx.py --twocol   # Word version, two columns like the PDF
-python src/make_template_docx.py   # Word version on conference-template-a4.docx
-python src/check_tex.py            # LaTeX structure / citation / cross-reference check
-python src/audit_numbers.py        # machine-check every number in the manuscript against run logs (121 checks)
-python src/audit_round8.py         # round-8 review computations: per-band AUC/ECE/net benefit, calibration transport
+Data: BRFSS 2015 + the 2017/2019/2021/2023 waves, downloaded per the README of the CDC
+Diabetes Health Indicators release (CC0). `data/raw/` is gitignored; the processed CSVs
+are regenerated by the scripts above.
+
+## Build the submission artifacts
+
+```powershell
+python src/make_template_docx.py                                   # manuscript/manuscript.docx
+python src/make_template_docx.py --anon --out manuscript/manuscript_anon.docx
 ```
 
-## Camera-ready PDF (authoritative)
-`manuscript.pdf` and `manuscript_anon.pdf` at the repository root are **true IEEEtran
-builds** (US Letter, two-column, 10pt), not the legacy ReportLab review mock
-(`src/make_pdf.py`, still kept for quick visual diffs). Regenerate both with:
+Both are then exported to PDF by Word itself (the template is a Strict-OOXML file, so the
+script rewrites the namespace and reuses the template's styles, A4 setup and numbering):
 
-```bash
-python src/compile_ieee.py --anon --max 6
+```powershell
+# open each .docx in Word and File > Export > PDF, or drive it with COM
 ```
 
-`compile_ieee.py` exits non-zero if the paper exceeds the 6-page ICCICA 2027 limit
-(including figures, tables and references) and prints over/underfull box warnings.
-`src/make_anon.py` strips the author block, the repository URL and the author name from
-the bibliography, and verifies that no identifier remains in the output.
+The template build uses the venue's own styles and auto-numbering: `paper title`,
+`Author`, `Abstract`, `Keywords`, `Heading 1` (auto Roman), `Heading 2` (auto lettered),
+`Body Text`, `table head` (auto "TABLE I."), `table col head` / `table copy`,
+`figure caption` (auto "Fig. 1."), `Heading 5`, `references` (auto "[1]").
 
+Alternate formats (kept in `archive/`, not for submission):
 
-## Outputs
-- results/logs/results.json — per-seed metrics, fairness, ablation
-- results/logs/novel_results.json — temporal validation, minimal questionnaire, thresholds
-- results/logs/audit_results*.json — leakage protocols, calibrators, fairness inference,
-  HP search, wave drift, selectors, scenarios, constrained thresholds, manifest
-- results/logs/shap.json, fairness_agg.json, gateA_report.json
-- results/logs/audit_results13.json, age_band_supports.csv — round-8 per-band AUC/ECE/net
-  benefit, per-group vs global calibration transport, age-band definitions and supports
-- results/figures/*.png, figures/*.png
-- manuscript.tex — IEEE conference manuscript (authoritative source)
-- manuscript.pdf — IEEEtran build, 6 pages, for camera-ready use
-- manuscript_anon.pdf — anonymized double-blind build, 6 pages, for the CMT submission
-- manuscript_template.docx — manuscript on the conference's own A4 Word template
-  (conference-template-a4.docx), 7 pages
-- manuscript.docx — Word version, single column, editable (7 pages)
-- manuscript_2col.docx — Word version, two columns matching the PDF layout (6 pages)
-- paperreview_review_round*.md, paperreview_responses_round*.md — eight external review rounds
-  and the point-by-point response records
+```powershell
+python src/compile_ieee.py --max 6   # two-column IEEEtran, page-count gate at 6
+python src/make_docx.py              # pandoc Word export (legacy)
+```
+
+## Integrity checks
+
+```powershell
+python src/check_tex.py        # citations, cross-references, labels, structure
+python src/audit_numbers.py    # 121 checks: every printed number vs. the run logs
+```
+
+`audit_numbers.py` currently reports **69 + 41 + 11 = 121 checks, 0 failures**.
 
 ## Submission target
+
 ICCICA 2027 (3rd International Conference on Computational Intelligence & Computing
 Applications), 11-12 March 2027, PIET Samalkha, Haryana, India; technically sponsored by
 IEEE Delhi Section; IEEE Xplore, Conference Record No. 73185.
 
 | Item | Requirement | State |
 |---|---|---|
-| Format | US Letter, IEEEtran conference, 2-column, 10pt, 0.75in margins (1in top on title page) | met (612x792 pt, verified) |
-| Length | <= 6 pages incl. figures, tables, references | met (6 pages, both builds) |
-| Extra pages | up to 2 allowed at INR 1,000/page | not needed |
-| Review | double-blind, min. 3 reviewers, IEEE plagiarism check | anonymized build provided |
-| Submission | Microsoft CMT: `cmt3.research.microsoft.com/ICCICA2027/Submission/Index` | author action |
+| Format | the venue's A4 Word template (`templates/conference-template-a4.docx`), single column | met |
+| Length | 6 pages in the anonymized A4 build (7 with the named author block) | met |
+| Review | double-blind, min. 3 reviewers, IEEE plagiarism check | `manuscript_anon.*` provided |
+| Submission | `cmt3.research.microsoft.com/ICCICA2027/Submission/Index` | author action |
 | Track | Track 4 - Data Science, Machine Learning and Deep Learning | selected |
 | Dates | submission 12 Oct 2026 (extension granted), notification 15 Dec 2026, camera-ready 1 Jan 2027, early registration 27 Jan 2027, late 10 Feb 2027 | from the official CFP |
 | Registration | student INR 7,400/9,000; regular INR 9,000/11,000; co-author INR 1,500; one author must register | author action |
 
+Remaining author actions are listed in `docs/SUBMISSION_CHECKLIST.md`.
 
-## Seeds
-42, 7, 123, 2024, 99 (reported as mean +/- std).
+## Outputs
 
-## Integrity
-Every number in the manuscript is machine-checked against the logged runs by
-`src/audit_numbers.py` (121 checks: 69 + 41 + 11). No fabricated metrics. The SHA-256 manifest of
-all artifacts is regenerated by `run_audit7.py`.
-
-## Known data constraints (documented in the paper)
-- The cleaned release carries no survey design variables (weights, strata, PSUs), so
-  population-level prevalence claims are not supported; design-effect sensitivity is
-  reported instead.
-- Race/ethnicity is absent from the cleaned release, so fairness analysis covers
-  sex, age, income, and education only.
-- The target collapses prediabetes and diabetes; severity-stratified analysis is used
-  as a proxy for a condition-level breakdown.
-- The 2023 wave lacks four features and is excluded from out-of-time validation.
-
+- `results/logs/*.json` — one provenance file per run (metrics, audits, calibration,
+  fairness, drift, thresholds, diagnosis, round-8 computations)
+- `results/figures/`, `assets/figures/` — figures used in the paper
+- `reviews/` — eight PaperReview.ai rounds and the point-by-point response records
+- `manuscript/` — the paper in LaTeX, Word (named and anonymized) and PDF

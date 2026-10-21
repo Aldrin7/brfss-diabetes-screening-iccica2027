@@ -9,7 +9,7 @@ your CMT account.
 
 ---
 
-## 1. Fill in the author block — `manuscript.tex` lines 17-21
+## 1. Fill in the author block — `manuscript/manuscript.tex` lines 17-21
 
 ```latex
 \author{\IEEEauthorblockN{First Author, Second Author}
@@ -46,7 +46,7 @@ returns HTTP 404 (private or not yet created).
   "are released at", optionally adding a Zenodo DOI to \cite{repo} for a citable release.
 
 The repository already contains: `src/`, `run_*.py`, `results/logs/*.json` (all 15 logged
-run files), `results/figures/`, `requirements.txt`, and the SHA-256 artifact manifest.
+run files), `assets/figures/`, `requirements.txt`, and the SHA-256 artifact manifest.
 `data/raw/` is intentionally excluded (the BRFSS files are redistributed by CDC/UCI/Kaggle
 under CC0 — see the README for the download instructions).
 
@@ -54,7 +54,8 @@ under CC0 — see the README for the download instructions).
 ## 5. Build the two submission PDFs (already done, re-run after edits)
 
 ```powershell
-python src/compile_ieee.py --anon --max 6   # named + anonymized, fails if > 6 pages
+python src/make_template_docx.py                                   # manuscript/manuscript.docx
+python src/make_template_docx.py --anon --out manuscript/manuscript_anon.docx
 python src/audit_numbers.py                 # 110 machine-checked numbers, 0 failures
 python src/check_tex.py                     # citations, refs, labels, structure
 ```
@@ -63,9 +64,9 @@ Artifacts:
 
 | File | Use |
 |---|---|
-| `manuscript_anon.pdf` | **upload this** to CMT (double-blind) |
-| `manuscript.pdf` | camera-ready source, keep the author block |
-| `manuscript.tex` | authoritative source of both |
+| `manuscript/manuscript_anon.pdf` | **upload this** to CMT (double-blind) |
+| `manuscript/manuscript.pdf` | camera-ready PDF, keep the author block |
+| `manuscript/manuscript.tex` | authoritative source of both |
 | `manuscript_template.docx` | manuscript on the conference's own A4 Word template (`conference-template-a4.docx`) |
 | `manuscript.docx` | Word version, single column — for co-author review and annotation |
 | `manuscript_2col.docx` | Word version, two columns — matches the PDF layout, 6 pages |
@@ -112,7 +113,7 @@ undefined citations or cross-references.
 
 1. Create/sign in to a CMT account for every author (each needs their own account and email).
 2. Create a new submission; choose **Track 4 - Data Science, Machine Learning and Deep Learning**.
-3. Title: copy verbatim from `manuscript.tex` line 14.
+3. Title: copy verbatim from `manuscript/manuscript.tex` line 14.
 4. Abstract: copy the text of the `abstract` environment (206 words, no citations inside).
    Keywords: `diabetes screening, machine learning, calibration, fairness auditing, SHAP, BRFSS, health equity, ethical AI` (8 terms; the CFP asks for up to 5 for the title page — trim to the first five if CMT rejects more).
 5. Upload `manuscript_anon.pdf` as the only PDF. Do not upload the named version or a supplementary
@@ -149,5 +150,5 @@ undefined citations or cross-references.
 | 10 Feb 2027 | late registration |
 | 11-12 Mar 2027 | conference, PIET Samalkha (hybrid); at least one author must register and present |
 
-Prepare the presentation slides from the four figures already in `results/figures/`:
+Prepare the presentation slides from the four figures already in `assets/figures/`:
 `shap_top_features.png`, `calibration_curve.png`, `decision_curve.png`, `fairness_by_age.png`.

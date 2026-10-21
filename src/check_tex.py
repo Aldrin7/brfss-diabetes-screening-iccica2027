@@ -1,5 +1,7 @@
+import os
 import re
-p = r"D:\Research\On-Progress\PIET Conference\manuscript.tex"
+p = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+               "manuscript", "manuscript.tex")
 t = open(p, encoding="utf-8").read()
 b = re.findall(r"\\begin\{(\w+)\}", t)
 e = re.findall(r"\\end\{(\w+)\}", t)

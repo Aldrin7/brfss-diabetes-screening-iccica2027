@@ -3,7 +3,7 @@
 Paper: "What the Audits Change: An Interpretable and Fairness-Aware Screening Framework for Diabetes from Population Health Surveys"
 Reviewer round: PaperReview.ai round 6 (submitted 2026-10-21)
 Status: all seven reviewer questions and the six stated weaknesses are addressed in the
-6-page IEEEtran build (`build/manuscript.pdf`, 6 pages; `build/manuscript_anon.pdf`,
+6-page IEEEtran build (`archive/ieeetran_2col/`, 6 pages each;
 anonymized 6 pages). Every number below is machine-verified against the logged runs by
 `src/audit_numbers.py` (69 + 41 checks, 0 failures).
 
@@ -23,7 +23,7 @@ reported in the surrounding paragraph.
 **Q2 — The SHAP bar chart lists features such as "ever_married" and "work_type", which are
 not in the BRFSS Diabetes Health Indicators release.**
 No change required — verified, not a defect in our figures. Every interpretability plot in
-this repository was checked against the 21-feature BRFSS schema: `figures/shap_top_features.png`
+this repository was checked against the 21-feature BRFSS schema: `assets/figures/shap_top_features.png`
 and `results/figures/shap_summary.png` plot only GenHlth, HighBP, Age, BMI, HighChol,
 Income, Sex, CholCheck, MentHlth, HvyAlcoholConsump, HeartDiseaseorAttack, DiffWalk,
 Education. The same check was run on `results/figures/feature_selectors.png`,

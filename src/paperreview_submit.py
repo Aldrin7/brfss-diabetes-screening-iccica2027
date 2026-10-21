@@ -1,7 +1,7 @@
 import json, urllib.request, os, urllib.parse, time
 
 ROOT = r"D:\Research\On-Progress\PIET Conference"
-PDF = os.path.join(ROOT, "manuscript.pdf")
+PDF = os.path.join(ROOT, "manuscript", "manuscript.pdf")
 BASE = "https://paperreview.ai"
 LOGSD = os.path.join(ROOT, "results", "logs")
 tm = json.load(open(os.path.join(LOGSD, "tempmail.json")))

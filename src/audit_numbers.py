@@ -1,7 +1,7 @@
 import json, os, re
 ROOT = r"D:\Research\On-Progress\PIET Conference"
 LOGS = os.path.join(ROOT, "results", "logs")
-tex = open(os.path.join(ROOT, "manuscript.tex"), encoding="utf-8").read()
+tex = open(os.path.join(ROOT, "manuscript", "manuscript.tex"), encoding="utf-8").read()
 
 def g(n):
     p = os.path.join(LOGS, n)
@@ -189,7 +189,7 @@ for label, needle, in_tex, ok in fails2:
     print("  FAIL %-22s needle=%-12s in_tex=%s value_ok=%s" % (label, needle, in_tex, ok))
 
 # ---------- round-8 additions ----------
-a13 = g("audit_results13.json")
+a13 = g("audit_results14.json")
 print("\n=== round-8 additions ===")
 checks3 = []
 def chk3(label, needle, ok):

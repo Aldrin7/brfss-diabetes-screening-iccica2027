@@ -19,9 +19,9 @@ import subprocess
 import sys
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-BUILD = os.path.join(ROOT, "build")
-TEX = os.path.join(ROOT, "manuscript.tex")
-FIGDIRS = [os.path.join(ROOT, "figures"), os.path.join(ROOT, "results", "figures")]
+BUILD = os.path.join(ROOT, "manuscript", "build")
+TEX = os.path.join(ROOT, "manuscript", "manuscript.tex")
+FIGDIRS = [os.path.join(ROOT, "assets", "figures"), os.path.join(ROOT, "results", "figures")]
 
 
 def find_pdflatex():

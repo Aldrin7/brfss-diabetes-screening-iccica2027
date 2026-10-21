@@ -11,7 +11,7 @@ and is emitted with the template's own style names:
     Heading 5, references
 
 Usage:
-    python src/make_template_docx.py                 # -> manuscript_template.docx
+    python src/make_template_docx.py                 # -> manuscript/manuscript.docx
     python src/make_template_docx.py --out x.docx
 """
 import argparse
@@ -28,10 +28,10 @@ from make_docx import (  # noqa: E402
 )
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-BUILD = os.path.join(ROOT, "build")
-TEMPLATE = os.path.join(ROOT, "conference-template-a4.docx")
-TEX = os.path.join(ROOT, "manuscript.tex")
-FIGS = [os.path.join(ROOT, "figures"), os.path.join(ROOT, "results", "figures")]
+BUILD = os.path.join(ROOT, "manuscript", "build")
+TEMPLATE = os.path.join(ROOT, "templates", "conference-template-a4.docx")
+TEX = os.path.join(ROOT, "manuscript", "manuscript.tex")
+FIGS = [os.path.join(ROOT, "assets", "figures"), os.path.join(ROOT, "results", "figures")]
 
 NS_MAP = [
     ("http://purl.oclc.org/ooxml/officeDocument/relationships",
@@ -341,7 +341,7 @@ COLUMN_WIDTHS = {
 }
 
 
-def build(out_path):
+def build(out_path, anon=False):
     import docx
     from docx.shared import Inches, Pt
     from docx.enum.text import WD_ALIGN_PARAGRAPH
@@ -412,15 +412,22 @@ def build(out_path):
             p = doc.add_paragraph(style="paper title")
             add_runs(p, clean_text(payload))
         elif kind == "authors":
-            a = payload
-            m = re.search(r"\\IEEEauthorblockN\{", a)
-            if m:
-                content, end = balanced(a, m.end() - 1)
-                a = a[:m.start()] + content + a[end:]
-            m = re.search(r"\\IEEEauthorblockA\{", a)
-            if m:
-                content, end = balanced(a, m.end() - 1)
-                a = a[:m.start()] + content + a[end:]
+            if anon:
+                p = doc.add_paragraph(style="Author")
+                add_runs(p, "Anonymous Submission")
+                p = doc.add_paragraph(style="Author")
+                add_runs(p, "Author details withheld for double-blind review")
+                a = ""
+            else:
+                a = payload
+                m = re.search(r"\\IEEEauthorblockN\{", a)
+                if m:
+                    content, end = balanced(a, m.end() - 1)
+                    a = a[:m.start()] + content + a[end:]
+                m = re.search(r"\\IEEEauthorblockA\{", a)
+                if m:
+                    content, end = balanced(a, m.end() - 1)
+                    a = a[:m.start()] + content + a[end:]
             a = a.replace("\\\\", "\n")
             a = re.sub(r"\\textit\{([^{}]*)\}", r"\1", a)
             a = a.replace("{", "").replace("}", "").replace("\\", "")
@@ -488,13 +495,17 @@ def build(out_path):
                 p.alignment = WD_ALIGN_PARAGRAPH.CENTER
                 path = os.path.join(BUILD, img.group(1))
                 if not os.path.exists(path):
-                    path = os.path.join(ROOT, "figures", img.group(1))
+                    path = os.path.join(ROOT, "assets", "figures", img.group(1))
                 p.add_run().add_picture(path, width=Inches(4.2))
             if cap:
                 p = doc.add_paragraph(style="figure caption")
                 add_runs(p, prep(cap.group(1)))
         elif kind == "ref":
             key, bodytxt = payload
+            if anon:
+                bodytxt = bodytxt.replace("A. Author,", "Anonymous,")
+                bodytxt = re.sub(r"https://github\.com/\S+",
+                                  "[repository withheld for double-blind review]", bodytxt)
             p = doc.add_paragraph(style="references")
             add_runs(p, prep(bodytxt))
 
@@ -504,10 +515,12 @@ def build(out_path):
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--out", default="manuscript_template.docx")
+    ap.add_argument("--out", default=os.path.join("manuscript", "manuscript.docx"))
+    ap.add_argument("--anon", action="store_true",
+                    help="anonymized double-blind version (no author block, no repository URL)")
     args = ap.parse_args()
-    out = os.path.join(ROOT, args.out)
-    path, blocks = build(out)
+    out = args.out if os.path.isabs(args.out) else os.path.join(ROOT, args.out)
+    path, blocks = build(out, anon=args.anon)
     import docx
     d = docx.Document(path)
     print("wrote %s" % path)

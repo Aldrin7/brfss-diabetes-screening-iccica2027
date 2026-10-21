@@ -12,7 +12,7 @@ from preprocessing import load_raw, split_data, FEATURES, TARGET, SENSITIVE, CON
 from models import build_models
 from fairness import compute_metrics, group_metrics, fairness_gaps
 
-ROOT = os.path.dirname(os.path.abspath(__file__))
+ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DATA = os.path.join(ROOT, "data", "raw", "diabetes_binary_health_indicators_BRFSS2015.csv")
 RESULTS = os.path.join(ROOT, "results")
 LOGS = os.path.join(RESULTS, "logs")

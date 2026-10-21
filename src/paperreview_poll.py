@@ -7,7 +7,7 @@ tm = json.load(open(os.path.join(LOGSD, "tempmail.json")))
 token = tm["token"]
 rnd = tm.get("round", 2)
 out_json = os.path.join(LOGSD, "paperreview_review_round%d.json" % rnd)
-out_md = os.path.join(ROOT, "paperreview_review_round%d.md" % rnd)
+out_md = os.path.join(ROOT, "reviews", "paperreview_review_round%d.md" % rnd)
 
 deadline = time.time() + float(sys.argv[1] if len(sys.argv) > 1 else 540)
 print("polling token", token, flush=True)

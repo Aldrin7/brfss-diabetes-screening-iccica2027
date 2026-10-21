@@ -17,8 +17,8 @@ import subprocess
 import sys
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-BUILD = os.path.join(ROOT, "build")
-SRC = os.path.join(ROOT, "manuscript.tex")
+BUILD = os.path.join(ROOT, "manuscript", "build")
+SRC = os.path.join(ROOT, "manuscript", "manuscript.tex")
 ANON = os.path.join(BUILD, "manuscript_anon.tex")
 
 ANON_AUTHOR = """\\author{\\IEEEauthorblockN{Anonymous Submission}
@@ -56,7 +56,7 @@ def anonymize(text):
 
 def main():
     os.makedirs(BUILD, exist_ok=True)
-    for d in (os.path.join(ROOT, "figures"), os.path.join(ROOT, "results", "figures")):
+    for d in (os.path.join(ROOT, "assets", "figures"), os.path.join(ROOT, "results", "figures")):
         if os.path.isdir(d):
             for f in os.listdir(d):
                 if f.lower().endswith(".png"):

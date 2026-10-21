@@ -2,7 +2,7 @@ import pandas as pd
 import json
 import os
 
-root = r"D:\Research\On-Progress\PIET Conference"
+root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 p = root + r"\data\raw\diabetes_binary_health_indicators_BRFSS2015.csv"
 df = pd.read_csv(p)
 
