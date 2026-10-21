@@ -119,6 +119,14 @@ python src/compile_ieee.py --max 6   # two-column IEEEtran, page-count gate at 6
 python src/make_docx.py              # pandoc Word export (legacy)
 ```
 
+## Code release
+
+The public repository is **https://github.com/Aldrin7/brfss-diabetes-screening-iccica2027**
+(branch `main`). It carries the manuscript, all code, every run log and the figures. The
+paper cites this URL directly in its Data and Code Availability statement, and the repository
+is **not** a numbered reference: the paper has 16 references, each cited in the text, numbered
+in order of first appearance, with no uncited entries.
+
 ## Integrity checks
 
 ```powershell
@@ -140,6 +148,7 @@ IEEE Delhi Section; IEEE Xplore, Conference Record No. 73185.
 | Length | 6 pages, named and anonymized | met |
 | Review | double-blind, min. 3 reviewers, IEEE plagiarism check | `manuscript_anon.*` provided |
 | Submission | `cmt3.research.microsoft.com/ICCICA2027/Submission/Index` | author action |
+| Code release | https://github.com/Aldrin7/brfss-diabetes-screening-iccica2027 (public) | live |
 | Track | Track 4 - Data Science, Machine Learning and Deep Learning | selected |
 | Dates | submission 12 Oct 2026 (extension granted), notification 15 Dec 2026, camera-ready 1 Jan 2027, early registration 27 Jan 2027, late 10 Feb 2027 | from the official CFP |
 | Registration | student INR 7,400/9,000; regular INR 9,000/11,000; co-author INR 1,500; one author must register | author action |

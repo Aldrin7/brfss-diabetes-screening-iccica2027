@@ -34,16 +34,17 @@ is the only thing left to fill in**. If the venue later requests a CRediT statem
 - Author A: Conceptualization, Methodology, Software, Validation, Formal analysis, Writing (original draft, review and editing)
 - Author B: Data curation, Resources, Writing (review and editing)
 
-## 3. Repository release (optional, not blocking)
+## 3. Repository release (done)
 
-The Data and Code Availability statement now reads: the code, run manifests, logged results
-and the SHA-256 artifact manifest "are held in a private repository for review and will be
-made public on acceptance". That is accurate today — `https://github.com/Aldrin7/brfss-diabetes-screening-iccica2027`
-returns HTTP 404 (private or not yet created).
+The repository is **public**: https://github.com/Aldrin7/brfss-diabetes-screening-iccica2027
+(branch `main`, pushed from this working tree). The Data and Code Availability statement now
+reads that the code, run manifests, logged results and the SHA-256 artifact manifest "are
+released at" that URL.
 
-- For the **submission**, nothing to do: the statement is honest as written.
-- For the **camera-ready (1 Jan 2027)**, make the repository public and change the sentence to
-  "are released at", optionally adding a Zenodo DOI to \cite{repo} for a citable release.
+The repository is deliberately **not** a numbered reference: the paper has 16 references, each
+cited in the text, numbered in order of first appearance, with no uncited entries and no
+self-citation. The anonymized build replaces the URL with
+"[repository withheld for double-blind review]".
 
 The repository already contains: `src/`, `run_*.py`, `results/logs/*.json` (all 15 logged
 run files), `assets/figures/`, `requirements.txt`, and the SHA-256 artifact manifest.

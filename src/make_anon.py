@@ -33,20 +33,13 @@ def anonymize(text):
                   lambda m: ANON_AUTHOR + "\n\n\\maketitle", text, flags=re.S)
     # 2. repository url in the bibliography
     text = text.replace(REPO_URL, "[repository withheld for double-blind review]")
-    # 3. repository bibliography entry -> anonymous
-    text = re.sub(
-        r"\\bibitem\{repo\}\s*A\. Author,[^\n]*",
-        r"\\bibitem{repo} Anonymous, ``BRFSS diabetes screening: code, run manifests, and "
-        r"SHA-256 artifact manifest,'' repository withheld for double-blind review.",
-        text,
-    )
-    # 4. data-availability sentence
+    # 4. data-availability sentence: the repository URL is replaced above, so the
+    #    sentence is rewritten as a whole to read correctly in the anonymised version
     text = text.replace(
         "The analysis code, run manifests, logged results, and a SHA-256 hash manifest of every "
-        "artifact are held in a private repository for review and will be made public on acceptance "
-        "\\cite{repo}.",
+        "artifact are released at [repository withheld for double-blind review].",
         "The analysis code, run manifests, logged results, and a SHA-256 hash manifest of every "
-        "artifact are withheld during review and will be released on acceptance \\cite{repo}.",
+        "artifact are withheld during review and will be released on acceptance.",
     )
     # 5. any residual self-identifying strings
     for token in ("Aldrin7", "Aldrin"):

@@ -510,8 +510,20 @@ def build(out_path, anon=False, columns=2):
             txt = clean_text(prep(payload))
             if not txt:
                 continue
+            body_text = prep(payload)
+            if anon:
+                # the repository URL identifies the author: withhold it and state the
+                # release policy instead
+                body_text = body_text.replace(
+                    "The analysis code, run manifests, logged results, and a SHA-256 hash manifest "
+                    "of every artifact are released at https://github.com/Aldrin7/"
+                    "brfss-diabetes-screening-iccica2027.",
+                    "The analysis code, run manifests, logged results, and a SHA-256 hash manifest "
+                    "of every artifact are withheld during review and will be released on acceptance.")
+                body_text = re.sub(r"https://github\.com/\S+",
+                                   "[repository withheld for double-blind review]", body_text)
             p = doc.add_paragraph(style="Body Text")
-            add_runs(p, prep(payload))
+            add_runs(p, body_text)
         elif kind == "table":
             tbl_i += 1
             tb = parse_table(payload, label_num)
