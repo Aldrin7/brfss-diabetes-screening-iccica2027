@@ -10,3 +10,4 @@ Prompt collection/
 
 .kilo/
 results/logs/tempmail.json
+results/logs/paperreview_token_round*.json

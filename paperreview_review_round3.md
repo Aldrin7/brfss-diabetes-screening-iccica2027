@@ -1,4 +1,4 @@
-# Review (round 3, two-column PDF): An Interpretable, Fairness-Aware Machine Learning Framework for Diabetes Screening from Population Health Surveys
+# Review (round 3): An Interpretable, Fairness-Aware Machine Learning Framework for Diabetes Screening from Population Health Surveys
 
 Venue: ICCICA | Submitted: 2026-10-21T10:44:33.897827 | Reviewed: 2026-10-21T11:06:14.455386
 
