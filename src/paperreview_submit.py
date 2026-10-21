@@ -31,8 +31,15 @@ req = urllib.request.Request(BASE + "/api/confirm-upload", data=data.encode(), h
 resp = json.loads(urllib.request.urlopen(req).read())
 print("confirm:", json.dumps(resp))
 token = resp.get("token")
+rnd = int(tm.get("round", 1)) + 1
+if tm.get("token"):
+    json.dump({"email": email, "password": tm.get("password"), "token": tm["token"],
+               "round": rnd - 1, "s3_key": tm.get("s3_key"),
+               "review_url": BASE + "/review?token=" + str(tm["token"])},
+              open(os.path.join(LOGSD, "paperreview_token_round%d.json" % (rnd - 1)), "w"), indent=2)
 json.dump({"email": email, "password": tm.get("password"), "token": token, "s3_key": s3_key,
-           "review_url": BASE + "/review?token=" + str(token), "round": 2},
+           "review_url": BASE + "/review?token=" + str(token), "round": rnd},
           open(os.path.join(LOGSD, "tempmail.json"), "w"), indent=2)
 print("TOKEN:", token)
 print("URL:", BASE + "/review?token=" + str(token))
+print("ROUND:", rnd)

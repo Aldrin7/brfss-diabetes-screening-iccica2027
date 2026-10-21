@@ -1,0 +1,288 @@
+{
+  "per_wave_calibration": {
+    "2015": {
+      "n": 50736,
+      "prevalence": 0.13932907600126143,
+      "roc_auc": 0.8265299774195143,
+      "raw": {
+        "n": 50736,
+        "brier": 0.17571367724666376,
+        "ece": 0.23668969146994584,
+        "mce": 0.42014136756753817,
+        "mean_pred": 0.3760187674712073,
+        "observed": 0.13932907600126143
+      },
+      "isotonic_transported": {
+        "n": 50736,
+        "brier": 0.09762936002440802,
+        "ece": 0.0031251660898557214,
+        "mce": 0.25,
+        "mean_pred": 0.13956433398069157,
+        "observed": 0.13932907600126143
+      },
+      "platt_transported": {
+        "n": 50736,
+        "brier": 0.09766835148967155,
+        "ece": 0.008288860103509238,
+        "mce": 0.055904187909090575,
+        "mean_pred": 0.1394596755179979,
+        "observed": 0.13932907600126143
+      },
+      "subgroup_Sex": {
+        "raw": {
+          "max_group_ece": 0.25052671599900933,
+          "mean_group_ece": 0.23822368987818346,
+          "max_group_brier": 0.18959589410062128,
+          "n_groups": 2
+        },
+        "isotonic_transported": {
+          "max_group_ece": 0.004502718503952928,
+          "mean_group_ece": 0.003595841718313547,
+          "max_group_brier": 0.1062298157965881,
+          "n_groups": 2
+        }
+      },
+      "subgroup_Age": {
+        "raw": {
+          "max_group_ece": 0.34032676800124706,
+          "mean_group_ece": 0.20687645719753053,
+          "max_group_brier": 0.26827743589284336,
+          "n_groups": 13
+        },
+        "isotonic_transported": {
+          "max_group_ece": 0.02076945252960267,
+          "mean_group_ece": 0.010896411777541944,
+          "max_group_brier": 0.15013882022326316,
+          "n_groups": 13
+        }
+      },
+      "subgroup_Income": {
+        "raw": {
+          "max_group_ece": 0.3092902103776462,
+          "mean_group_ece": 0.2703196728619187,
+          "max_group_brier": 0.27283903412928356,
+          "n_groups": 8
+        },
+        "isotonic_transported": {
+          "max_group_ece": 0.03431138588934835,
+          "mean_group_ece": 0.0126205389913434,
+          "max_group_brier": 0.16856064089310244,
+          "n_groups": 8
+        }
+      }
+    },
+    "2017": {
+      "n": 275854,
+      "prevalence": 0.14087887070696817,
+      "roc_auc": 0.8329241572841001,
+      "raw": {
+        "n": 275854,
+        "brier": 0.16919440202367206,
+        "ece": 0.22404028756967564,
+        "mce": 0.41202231410416873,
+        "mean_pred": 0.3649191582766439,
+        "observed": 0.14087887070696817
+      },
+      "isotonic_transported": {
+        "n": 275854,
+        "brier": 0.09709007682688651,
+        "ece": 0.006389996359301179,
+        "mce": 0.21875,
+        "mean_pred": 0.1356269036384852,
+        "observed": 0.14087887070696817
+      },
+      "platt_transported": {
+        "n": 275854,
+        "brier": 0.09730585322393459,
+        "ece": 0.009767659096209354,
+        "mce": 0.08725552024791172,
+        "mean_pred": 0.1359921939957307,
+        "observed": 0.14087887070696817
+      },
+      "subgroup_Sex": {
+        "raw": {
+          "max_group_ece": 0.23624567653585357,
+          "mean_group_ece": 0.22498783438454537,
+          "max_group_brier": 0.18016113856342045,
+          "n_groups": 2
+        },
+        "isotonic_transported": {
+          "max_group_ece": 0.006882975302745254,
+          "mean_group_ece": 0.0063490991463768815,
+          "max_group_brier": 0.10237344279964154,
+          "n_groups": 2
+        }
+      },
+      "subgroup_Age": {
+        "raw": {
+          "max_group_ece": 0.32536997277830065,
+          "mean_group_ece": 0.1988515358882439,
+          "max_group_brier": 0.26076033796967524,
+          "n_groups": 13
+        },
+        "isotonic_transported": {
+          "max_group_ece": 0.016832065280899724,
+          "mean_group_ece": 0.007782060566848974,
+          "max_group_brier": 0.15055623984482427,
+          "n_groups": 13
+        }
+      },
+      "subgroup_Income": {
+        "raw": {
+          "max_group_ece": 0.29823913561153853,
+          "mean_group_ece": 0.25241951640863813,
+          "max_group_brier": 0.256874394052025,
+          "n_groups": 8
+        },
+        "isotonic_transported": {
+          "max_group_ece": 0.015736770215640628,
+          "mean_group_ece": 0.009815539698205018,
+          "max_group_brier": 0.15298209625107312,
+          "n_groups": 8
+        }
+      }
+    },
+    "2019": {
+      "n": 243317,
+      "prevalence": 0.14507412141362913,
+      "roc_auc": 0.8244654567040999,
+      "raw": {
+        "n": 243317,
+        "brier": 0.1758937954535216,
+        "ece": 0.23263275175569884,
+        "mce": 0.41575533034664536,
+        "mean_pred": 0.37770687316932794,
+        "observed": 0.14507412141362913
+      },
+      "isotonic_transported": {
+        "n": 243317,
+        "brier": 0.10054290867247125,
+        "ece": 0.006244869236988077,
+        "mce": 0.04617582577642243,
+        "mean_pred": 0.1401923644301017,
+        "observed": 0.14507412141362913
+      },
+      "platt_transported": {
+        "n": 243317,
+        "brier": 0.100766175975027,
+        "ece": 0.009781687995320613,
+        "mce": 0.0821468105688925,
+        "mean_pred": 0.14026661708954027,
+        "observed": 0.14507412141362913
+      },
+      "subgroup_Sex": {
+        "raw": {
+          "max_group_ece": 0.24398206975553344,
+          "mean_group_ece": 0.23328462178941467,
+          "max_group_brier": 0.18775284365756761,
+          "n_groups": 2
+        },
+        "isotonic_transported": {
+          "max_group_ece": 0.007335614927935325,
+          "mean_group_ece": 0.006353847889491839,
+          "max_group_brier": 0.1075357809124494,
+          "n_groups": 2
+        }
+      },
+      "subgroup_Age": {
+        "raw": {
+          "max_group_ece": 0.3307843979527252,
+          "mean_group_ece": 0.20606809782996743,
+          "max_group_brier": 0.2643281295372638,
+          "n_groups": 13
+        },
+        "isotonic_transported": {
+          "max_group_ece": 0.020764362596029436,
+          "mean_group_ece": 0.008144803520231034,
+          "max_group_brier": 0.15426094846009317,
+          "n_groups": 13
+        }
+      },
+      "subgroup_Income": {
+        "raw": {
+          "max_group_ece": 0.30564116085928283,
+          "mean_group_ece": 0.26223368838086714,
+          "max_group_brier": 0.2630843480778919,
+          "n_groups": 8
+        },
+        "isotonic_transported": {
+          "max_group_ece": 0.016588883075611772,
+          "mean_group_ece": 0.009643954413170812,
+          "max_group_brier": 0.1550934975021992,
+          "n_groups": 8
+        }
+      }
+    },
+    "2021": {
+      "n": 236378,
+      "prevalence": 0.14200983171022685,
+      "roc_auc": 0.8190810949580697,
+      "raw": {
+        "n": 236378,
+        "brier": 0.17136615237503375,
+        "ece": 0.22363390527252475,
+        "mce": 0.4121286827560434,
+        "mean_pred": 0.3656437369827516,
+        "observed": 0.14200983171022685
+      },
+      "isotonic_transported": {
+        "n": 236378,
+        "brier": 0.10009219151392645,
+        "ece": 0.009703548058832293,
+        "mce": 0.125,
+        "mean_pred": 0.13384858325173632,
+        "observed": 0.14200983171022685
+      },
+      "platt_transported": {
+        "n": 236378,
+        "brier": 0.10024527562885494,
+        "ece": 0.010773621216905832,
+        "mce": 0.07486861192283578,
+        "mean_pred": 0.13413266395912016,
+        "observed": 0.14200983171022685
+      },
+      "subgroup_Sex": {
+        "raw": {
+          "max_group_ece": 0.23468546435038037,
+          "mean_group_ece": 0.2241032547283836,
+          "max_group_brier": 0.18384580278434376,
+          "n_groups": 2
+        },
+        "isotonic_transported": {
+          "max_group_ece": 0.011345694633982356,
+          "mean_group_ece": 0.00993916339758466,
+          "max_group_brier": 0.1079043347147073,
+          "n_groups": 2
+        }
+      },
+      "subgroup_Age": {
+        "raw": {
+          "max_group_ece": 0.3278003160114901,
+          "mean_group_ece": 0.19914259678196936,
+          "max_group_brier": 0.26190909880566743,
+          "n_groups": 13
+        },
+        "isotonic_transported": {
+          "max_group_ece": 0.02456105611794522,
+          "mean_group_ece": 0.01086123570629818,
+          "max_group_brier": 0.15343122032889245,
+          "n_groups": 13
+        }
+      },
+      "subgroup_Income": {
+        "raw": {
+          "max_group_ece": 0.29954046895557007,
+          "mean_group_ece": 0.23649026579265406,
+          "max_group_brier": 0.2644829347124444,
+          "n_groups": 11
+        },
+        "isotonic_transported": {
+          "max_group_ece": 0.022959596088129416,
+          "mean_group_ece": 0.012196439347981732,
+          "max_group_brier": 0.16332000659557414,
+          "n_groups": 11
+        }
+      }
+    }
+  }
+}
