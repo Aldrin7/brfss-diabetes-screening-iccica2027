@@ -43,6 +43,7 @@ PIET Conference/
 │   ├── make_figures.py          paper + analysis figures
 │   ├── make_audit_figures.py    calibration / leakage / fairness / drift / selector figures
 │   ├── make_dca_figure.py       decision-curve net benefit figure
+│   ├── make_column_figures.py   column-sized paper figures (decision curve, age bands)
 │   ├── make_template_docx.py    build the paper on the conference template
 │   ├── make_anon.py             anonymized IEEEtran PDF (alternate format)
 │   ├── make_docx.py             pandoc-based Word export (legacy, writes to build/)
@@ -86,6 +87,7 @@ python src/run_novel.py          # temporal + minimal-form experiments
 python src/run_audit.py          # ... through run_audit13.py, one audit per script
 python src/audit_round8.py       # round-8 review computations
 python src/make_figures.py ; python src/make_audit_figures.py ; python src/make_dca_figure.py
+python src/make_column_figures.py   # column-sized figures used in the paper
 ```
 
 Data: BRFSS 2015 + the 2017/2019/2021/2023 waves, downloaded per the README of the CDC
@@ -118,6 +120,16 @@ Alternate formats (kept in `archive/`, not for submission):
 python src/compile_ieee.py --max 6   # two-column IEEEtran, page-count gate at 6
 python src/make_docx.py              # pandoc Word export (legacy)
 ```
+
+## Figures in the paper
+
+| # | Figure | File | Built by |
+|---|---|---|---|
+| 1 | Per-age-band discrimination, calibration and net benefit | `assets/figures/age_band_diagnostics.png` | `src/make_column_figures.py` (from `results/logs/audit_results14.json`) |
+| 2 | Top 12 features by mean absolute SHAP | `assets/figures/shap_top_features.png` | `src/explain.py` |
+| 3 | Decision-curve net benefit | `assets/figures/decision_curve_col.png` | `src/make_column_figures.py` |
+
+All three are sized for a 3.15 in IEEE column (>= 300 dpi at that width) and carry 6 pt type.
 
 ## Code release
 

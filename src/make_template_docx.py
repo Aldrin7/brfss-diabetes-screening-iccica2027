@@ -328,8 +328,14 @@ def keep_table_together(table, caption_paragraph=None):
         if pPr.find(qn("w:keepNext")) is None:
             pPr.append(OxmlElement("w:keepNext"))
 
+    def keep_lines(p):
+        pPr = p._p.get_or_add_pPr()
+        if pPr.find(qn("w:keepLines")) is None:
+            pPr.append(OxmlElement("w:keepLines"))
+
     if caption_paragraph is not None:
         keep_next(caption_paragraph)
+        keep_lines(caption_paragraph)
     rows = table.rows
     for ri, row in enumerate(rows):
         trPr = row._tr.get_or_add_trPr()
@@ -566,6 +572,11 @@ def build(out_path, anon=False, columns=2):
             if cap:
                 p = doc.add_paragraph(style="figure caption")
                 add_runs(p, prep(cap.group(1)))
+                from docx.oxml import OxmlElement as _oxml_el
+                from docx.oxml.ns import qn as _qn2
+                _pPr = p._p.get_or_add_pPr()
+                if _pPr.find(_qn2("w:keepLines")) is None:
+                    _pPr.append(_oxml_el("w:keepLines"))
         elif kind == "ref":
             key, bodytxt = payload
             if anon:
