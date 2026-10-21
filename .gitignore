@@ -7,3 +7,5 @@ results/logs/_calib_probs.npy
 results/logs/_calib_groups.csv
 Prompt collection/
 *.zip
+
+.kilo/
