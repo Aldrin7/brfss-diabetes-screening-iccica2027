@@ -66,6 +66,14 @@ Artifacts:
 | `manuscript_anon.pdf` | **upload this** to CMT (double-blind) |
 | `manuscript.pdf` | camera-ready source, keep the author block |
 | `manuscript.tex` | authoritative source of both |
+| `manuscript.docx` | Word version, single column — for co-author review and annotation |
+| `manuscript_2col.docx` | Word version, two columns — matches the PDF layout, 6 pages |
+
+The Word versions are produced by `python src/make_docx.py [--twocol]`: IEEE-numbered
+citations, all four tables and the figure as native Word objects, the 17 references as a
+numbered list, and every number rendered as selectable text (inline LaTeX math is converted
+to plain Unicode) so the document can be read, searched and tracked for changes. The PDF
+remains the authoritative camera-ready artifact.
 
 Current state: 6 pages each, US Letter 612x792 pt, 4 tables, 1 figure, 15 references, no
 undefined citations or cross-references.
