@@ -1,0 +1,177 @@
+{
+  "temporal": {
+    "2017": {
+      "n_test": 275854,
+      "prevalence": 0.14087887070696817,
+      "accuracy": 0.7302558599839045,
+      "f1": 0.4525778353245836,
+      "roc_auc": 0.8337931551323724,
+      "recall": 0.791492975142813,
+      "precision": 0.31688747862279276
+    },
+    "2019": {
+      "n_test": 243317,
+      "prevalence": 0.14507412141362913,
+      "accuracy": 0.7197565316028062,
+      "f1": 0.4493418396188323,
+      "roc_auc": 0.8256282102397379,
+      "recall": 0.7881526388849542,
+      "precision": 0.31425150512249944
+    },
+    "2021": {
+      "n_test": 236378,
+      "prevalence": 0.14200983171022685,
+      "accuracy": 0.7270219732800853,
+      "f1": 0.44351110804470817,
+      "roc_auc": 0.8197632555669583,
+      "recall": 0.7659973784556721,
+      "precision": 0.31211157506311904
+    }
+  },
+  "minimal_questionnaire": {
+    "5": {
+      "features": [
+        "GenHlth",
+        "HighBP",
+        "Age",
+        "BMI",
+        "HighChol"
+      ],
+      "n_features": 5,
+      "roc_auc": 0.8186164521151917,
+      "f1": 0.4304811804137612,
+      "accuracy": 0.7086289813938821,
+      "recall": 0.7903522421841844
+    },
+    "8": {
+      "features": [
+        "GenHlth",
+        "HighBP",
+        "Age",
+        "BMI",
+        "HighChol",
+        "Income",
+        "Sex",
+        "CholCheck"
+      ],
+      "n_features": 8,
+      "roc_auc": 0.8230794574000833,
+      "f1": 0.43566268783559314,
+      "accuracy": 0.7120584988962473,
+      "recall": 0.7977083038619324
+    },
+    "11": {
+      "features": [
+        "GenHlth",
+        "HighBP",
+        "Age",
+        "BMI",
+        "HighChol",
+        "Income",
+        "Sex",
+        "CholCheck",
+        "HvyAlcoholConsump",
+        "MentHlth",
+        "HeartDiseaseorAttack"
+      ],
+      "n_features": 11,
+      "roc_auc": 0.8256858579678287,
+      "f1": 0.44039929536112743,
+      "accuracy": 0.7182473982970672,
+      "recall": 0.7957278257179233
+    },
+    "15": {
+      "features": [
+        "GenHlth",
+        "HighBP",
+        "Age",
+        "BMI",
+        "HighChol",
+        "Income",
+        "Sex",
+        "CholCheck",
+        "HvyAlcoholConsump",
+        "MentHlth",
+        "HeartDiseaseorAttack",
+        "DiffWalk",
+        "Education",
+        "Fruits",
+        "Stroke"
+      ],
+      "n_features": 15,
+      "roc_auc": 0.8262797749644138,
+      "f1": 0.4412652373299886,
+      "accuracy": 0.719035793125197,
+      "recall": 0.7962936766162116
+    },
+    "21": {
+      "features": [
+        "GenHlth",
+        "HighBP",
+        "Age",
+        "BMI",
+        "HighChol",
+        "Income",
+        "Sex",
+        "CholCheck",
+        "HvyAlcoholConsump",
+        "MentHlth",
+        "HeartDiseaseorAttack",
+        "DiffWalk",
+        "Education",
+        "Fruits",
+        "Stroke",
+        "Smoker",
+        "PhysActivity",
+        "PhysHlth",
+        "AnyHealthcare",
+        "Veggies",
+        "NoDocbcCost"
+      ],
+      "n_features": 21,
+      "roc_auc": 0.8269175105153435,
+      "f1": 0.4411304211679975,
+      "accuracy": 0.7185824660990224,
+      "recall": 0.797142452963644
+    }
+  },
+  "threshold_optimization": {
+    "0.75": {
+      "threshold": 0.545,
+      "sensitivity": 0.7524402319988683,
+      "specificity": 0.7473607071701742,
+      "f1": 0.4542271562766866,
+      "accuracy": 0.7480684326710817,
+      "sex_tpr_gap": 0.01686025064875496,
+      "positive_rate": 0.3222760958688111
+    },
+    "0.8": {
+      "threshold": 0.495,
+      "sensitivity": 0.802518036497383,
+      "specificity": 0.7012389218402912,
+      "f1": 0.4399720800372266,
+      "accuracy": 0.7153500473036897,
+      "sex_tpr_gap": 0.02396704421156637,
+      "positive_rate": 0.3689490696941028
+    },
+    "0.85": {
+      "threshold": 0.43,
+      "sensitivity": 0.8503324374027443,
+      "specificity": 0.6451782810818238,
+      "f1": 0.4207321341079303,
+      "accuracy": 0.673762220119836,
+      "sex_tpr_gap": 0.024645069302103306,
+      "positive_rate": 0.4238607694733523
+    },
+    "0.9": {
+      "threshold": 0.34500000000000003,
+      "sensitivity": 0.9005517046258311,
+      "specificity": 0.5713925847894291,
+      "f1": 0.39600634505925164,
+      "accuracy": 0.6172540208136235,
+      "sex_tpr_gap": 0.016174767683183044,
+      "positive_rate": 0.494362976978871
+    }
+  },
+  "elapsed_s": 54.7
+}

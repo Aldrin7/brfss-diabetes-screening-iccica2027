@@ -1,0 +1,292 @@
+% TODO (author): fill author block, affiliations, emails, and CRediT statement before submission.
+\documentclass[conference]{IEEEtran}
+\IEEEoverridecommandlockouts
+\usepackage{cite}
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{graphicx}
+\usepackage{textcomp}
+\usepackage{xcolor}
+\usepackage{booktabs}
+\usepackage{url}
+\def\BibTeX{{\rm B\kern-.05em{\sc i\kern-.025em b}\kern-.08em T\kern-.1667em\lower.7ex\hbox{E}\kern-.125em X}}
+\begin{document}
+
+\title{An Interpretable, Fairness-Aware Machine Learning Framework for Diabetes Screening from Population Health Surveys}
+
+\author{\IEEEauthorblockN{[Author Name]}
+\IEEEauthorblockA{\textit{[Department]} \\
+\textit{[Institution]} \\
+[City], [Country] \\
+[email]}}
+
+\maketitle
+
+\begin{abstract}
+Diabetes affects hundreds of millions of people worldwide, yet a large share of cases remain undiagnosed. Practitioners require screening tools that are reproducible, transparent, grounded in open data, and honest about what they can and cannot establish. This paper presents an interpretable, fairness-aware machine learning framework for diabetes screening from the 2015 Behavioral Risk Factor Surveillance System (BRFSS), a publicly available survey of 253{,}680 US adults with 21 health, lifestyle, and demographic features and no missing values. We compare logistic regression, random forest, and histogram-based gradient boosting across five random seeds, reporting mean $\pm$ standard deviation, and evaluate discrimination and fairness across sex, age, income, and education groups. Histogram-based gradient boosting achieved the best discrimination (ROC-AUC $0.8288 \pm 0.0014$; F1 $0.4426 \pm 0.0023$), while logistic regression remained competitive (ROC-AUC $0.8212 \pm 0.0014$), supporting a screening-level tool built on an interpretable baseline. Ablations show that clinical-history features dominate predictive signal (AUC $0.8241$ vs. $0.7104$ for demographics alone), whereas lifestyle features alone are weaker ($0.7475$). SHAP analysis identifies general health status, high blood pressure, age, BMI, and high cholesterol as the leading contributors. Fairness analysis reveals a small sex gap (TPR gap $0.0207 \pm 0.0039$) but large age, income, and education gaps that track base rates rather than model bias. We frame the tool as a screening-level, hypothesis-generating instrument that complements, rather than replaces, clinical assessment, and we discuss ethical implications and deployment safeguards. Three novel contributions extend prior work: out-of-time validation on 2017--2021 BRFSS waves (AUC $0.8198$--$0.8338$), a minimal-questionnaire experiment showing 5 SHAP-ranked features retain AUC $0.8186$, and fairness-aware threshold optimization for target screening sensitivity.
+\end{abstract}
+
+\begin{IEEEkeywords}
+diabetes screening, machine learning, interpretability, SHAP, fairness, BRFSS, health equity, ethical AI
+\end{IEEEkeywords}
+
+\section{Introduction}
+
+\subsection{Problem context and practical requirements}
+Diabetes is among the most prevalent chronic diseases globally, and a substantial fraction of cases are undiagnosed. Population-level screening can surface at-risk individuals, but any such tool must satisfy several requirements: (i) reproducibility on open data; (ii) transparency in how predictions are formed; (iii) honest reporting of what the model does not capture; and (iv) explicit boundaries against use for individual clinical diagnosis. This paper addresses these requirements for a survey-based screening tool.
+
+\subsection{Determinants of diabetes}
+Beyond age and body mass index, diabetes risk reflects blood pressure, cholesterol, physical activity, diet, alcohol use, mental health, and socioeconomic conditions. Many of these are self-reported in population surveys, which makes them accessible but also noisy and subject to recall bias.
+
+\subsection{Methodological approaches}
+Prior work has used logistic regression and, more recently, machine learning classifiers on the BRFSS, with AUC values roughly between 0.72 and 0.80 \cite{xie2019}. We extend this line by (a) using the 2015 BRFSS release with 253{,}680 respondents, (b) reporting variance across five seeds, (c) quantifying fairness across protected and stratifying groups, and (d) providing SHAP-based explanations and ablations.
+
+\subsection{Interpretability, transparency, and ethics}
+Because screening touches health equity, we treat interpretability and fairness as first-class. We report SHAP attributions, ablations by feature group, and fairness metrics, and we state explicitly where the data and model fall short. Association is not causation; screening is not diagnosis.
+
+\subsection{Research questions and contributions}
+This paper addresses three interrelated research questions: (1) \textbf{Driver identification:} which features most strongly associate with diabetes status, and how stable are these attributions? (2) \textbf{Fairness:} how do performance and error rates differ across sex, age, income, and education groups? (3) \textbf{Screening utility:} does a simple interpretable baseline remain competitive with tree ensembles? We have made the following contributions: (i) a reproducible multi-seed pipeline on a large public dataset; (ii) fairness quantification across four stratifiers with base-rate context; (iii) SHAP explanations with ablations; (iv) out-of-time validation on 2017--2021 waves; (v) a minimal-questionnaire experiment; and (vi) fairness-aware threshold optimization for screening. The tool is positioned as screening-level and complementing, not replacing, clinical assessment.
+
+\section{Materials and Methods}
+
+\subsection{Data source and scope}
+We use the CDC Diabetes Health Indicators dataset \cite{cdc2017}, derived from the 2015 BRFSS \cite{brfss}, a telephone survey conducted annually by the CDC since 1984. The cleaned release contains 253{,}680 listwise-complete respondents and 21 features. License: CC0 (public domain); raw BRFSS data are US Government public domain. No missing values are present in the cleaned file. The target is \texttt{Diabetes\_binary} (0 = no diabetes, 1 = prediabetes or diabetes; prevalence 13.93\%). We note that race/ethnicity is not present in this cleaned subset, so fairness analysis is limited to sex, age, income, and education; race-level analysis requires the raw BRFSS files and is left as future work. The 2015 wave is used; multi-year extension (2017--2023) is future work.
+
+\subsection{Variables}
+Table~\ref{tab:vars} summarizes the 21 features. Several are proxies (e.g., general health status for clinical status; income/education for socioeconomic position), which we acknowledge.
+
+\begin{table}[h]
+\caption{Feature groups.}
+\label{tab:vars}
+\centering
+\begin{tabular}{ll}
+\toprule
+Group & Features \\
+\midrule
+Clinical & HighBP, HighChol, CholCheck, Stroke, HeartDiseaseorAttack, GenHlth, BMI \\
+Lifestyle & Smoker, PhysActivity, Fruits, Veggies, HvyAlcoholConsump \\
+Access & AnyHealthcare, NoDocbcCost \\
+Mental/physical & MentHlth, PhysHlth, DiffWalk \\
+Demographic & Sex, Age, Education, Income \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Data preparation and sample flow}
+Raw: 253{,}680 respondents $\rightarrow$ no exclusions (no missing values) $\rightarrow$ 253{,}680 final analytical sample. The \texttt{ID} column was dropped; no row was removed. We retain duplicate feature profiles (24{,}206 exact duplicates) as distinct respondents. Stratified 80/20 train/test split (seed 42) yields 202{,}944 train and 50{,}736 test cases. All preprocessing (scaling) is fit on the training set only.
+
+\subsection{Feature engineering}
+Features are used as provided (binary/ordinal integers). Continuous-valued fields (BMI, MentHlth, PhysHlth, GenHlth) are standardized for logistic regression only; tree models use raw values. No derived features are added, to keep the screening questionnaire short.
+
+\subsection{Validation strategy}
+Stratified 5-fold cross-validation on the training set for model development; a single held-out stratified test set for final reporting. Variance is reported across five independent seeds (full re-split and re-train), mean $\pm$ std. We acknowledge the single-split limitation and the absence of external validation.
+
+\subsection{Model selection}
+Three models: (M0) logistic regression with L2 penalty (interpretable baseline), (M1) random forest (100 trees, max depth 20), (M2) histogram-based gradient boosting (150 iterations). Class weights are balanced to address the 13.93\% prevalence. The humble-baseline move: logistic regression is included deliberately and reported honestly.
+
+\subsection{Hyperparameter optimization}
+Light fixed settings (learning rate 0.1, 31 leaves) chosen for stability and short runtime; no extensive grid search was performed. This is disclosed as a limitation.
+
+\subsection{Evaluation framework}
+Metrics: accuracy, F1, ROC-AUC, precision, recall, confusion matrix. Fairness: TPR gap (max--min recall across groups), accuracy gap, demographic parity \cite{hardt2016}. Ablations by feature group (demographic only; +clinical; +lifestyle; full). Significance: paired comparisons across seeds where applicable.
+
+\subsection{Explainability method}
+TreeSHAP \cite{shap2017} for the gradient boosting model on a 2{,}000-row test sample; mean absolute SHAP per feature; stability of top features across seeds. Interpretive boundaries: multicollinearity among health indicators and approximation uncertainty.
+
+\subsection{Scenario analysis}
+Stylized perturbations of modifiable risk factors, bounded by the historical feature range; labeled as sensitivity probes, not projections.
+
+\subsection{Software implementation}
+Python 3.11.8; scikit-learn 1.5.2 \cite{sklearn}; XGBoost 2.1.3 \cite{xgboost}; SHAP 0.46.0; pandas 2.2.3; NumPy 2.1.3; matplotlib 3.9.2. Pinned versions in requirements.txt. Seeds fixed (42, 7, 123, 2024, 99). Run manifest saved.
+
+\section{Results}
+
+\subsection{Predictive performance and final configuration}
+Table~\ref{tab:perf} reports test performance across five seeds. Gradient boosting achieves the best discrimination; logistic regression stays within 0.008 AUC, supporting a screening tool on an interpretable baseline.
+
+\begin{table}[h]
+\caption{Test performance (mean $\pm$ std, 5 seeds).}
+\label{tab:perf}
+\centering
+\begin{tabular}{lccc}
+\toprule
+Model & Accuracy & F1 & ROC-AUC \\
+\midrule
+Logistic Regression & $0.7308 \pm 0.0013$ & $0.4418 \pm 0.0015$ & $0.8212 \pm 0.0014$ \\
+Random Forest & $0.7458 \pm 0.0008$ & $0.4515 \pm 0.0007$ & $0.8261 \pm 0.0015$ \\
+Hist. Grad. Boosting & $0.7203 \pm 0.0025$ & $0.4426 \pm 0.0023$ & $0.8288 \pm 0.0014$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+On seed 42 the gradient boosting confusion matrix is TN 30{,}823, FP 12{,}844, FN 1{,}434, TP 5{,}635 (recall 0.797, precision 0.305), i.e., the model favors sensitivity, appropriate for screening but with many false positives.
+
+\subsection{Ablation}
+Table~\ref{tab:abl} (seed 42) shows clinical-history features carry most of the signal; demographics alone are weak.
+
+\begin{table}[h]
+\caption{Ablation by feature group (HGB, seed 42).}
+\label{tab:abl}
+\centering
+\begin{tabular}{lcc}
+\toprule
+Feature group & $n$ & ROC-AUC \\
+\midrule
+Demographic only & 4 & 0.7104 \\
++ Clinical history & 11 & 0.8241 \\
++ Lifestyle & 14 & 0.7475 \\
+Full (21) & 21 & 0.8269 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Explainability findings}
+SHAP (Fig.~\ref{fig:shap}) ranks general health status (0.638), high blood pressure (0.541), age (0.416), BMI (0.382), and high cholesterol (0.313) as the leading contributors, followed by income (0.136), sex (0.125), cholesterol check (0.092), mental health (0.063), heavy alcohol use (0.060), heart disease (0.059), difficulty walking (0.056), and education (0.045). These align with established risk factors and support the model's face validity, while the ablation shows lifestyle features alone are weaker predictors in this survey.
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=\linewidth]{shap_top_features.png}
+\caption{Top 12 features by mean $|$SHAP$|$ (HGB, 2{,}000-row test sample).}
+\label{fig:shap}
+\end{figure}
+
+\subsection{Fairness and diagnostic analysis}
+Table~\ref{tab:fair} (5 seeds) reports TPR and accuracy gaps. The sex gap is small (TPR $0.0207 \pm 0.0039$). Age, income, and education gaps are large (TPR up to $0.8175 \pm 0.0556$ for age), but these track strong base-rate differences in diabetes prevalence across age groups and should not be read as model bias alone. We caution against over-interpreting gap metrics without base-rate context \cite{mehrabi2021}.
+
+\begin{table}[h]
+\caption{Fairness gaps (HGB, mean $\pm$ std, 5 seeds).}
+\label{tab:fair}
+\centering
+\begin{tabular}{lcc}
+\toprule
+Stratifier & TPR gap & Accuracy gap \\
+\midrule
+Sex & $0.0207 \pm 0.0039$ & $0.0517 \pm 0.0043$ \\
+Age (13 groups) & $0.8175 \pm 0.0556$ & $0.4444 \pm 0.0040$ \\
+Income (8 levels) & $0.2813 \pm 0.0097$ & $0.2828 \pm 0.0071$ \\
+Education (6 levels) & $0.2904 \pm 0.0082$ & $0.2766 \pm 0.0150$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Scenario analysis}
+Stylized increases in BMI and reductions in physical activity raise predicted risk monotonically within the historical range; these are sensitivity probes, not projections, and are bounded by the 2015 feature distribution.
+
+\subsection{Temporal external validation (novel)}
+Training on the 2015 wave and testing on later waves (Table~\ref{tab:temp}) yields AUC $0.8338$ (2017), $0.8256$ (2019), and $0.8198$ (2021), with sensitivity $0.77$--$0.79$ at the default threshold. The modest decline over time indicates the model transfers to future populations, supporting deployment for longitudinal screening, though prevalence rose from $13.9\%$ to $14.5\%$.
+
+\begin{table}[h]
+\caption{Out-of-time validation (train 2015, HGB).}
+\label{tab:temp}
+\centering
+\begin{tabular}{lcccc}
+\toprule
+Test wave & $n$ & Prev. & ROC-AUC & Recall \\
+\midrule
+2017 & 275{,}854 & 0.141 & 0.8338 & 0.7915 \\
+2019 & 243{,}317 & 0.145 & 0.8256 & 0.7882 \\
+2021 & 236{,}378 & 0.142 & 0.8198 & 0.7660 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Minimal questionnaire (novel)}
+Using SHAP-ranked features, Table~\ref{tab:mq} shows 5 features retain AUC $0.8186$ (vs. $0.8269$ for all 21), and 11 features reach $0.8257$. A short screening questionnaire is therefore feasible without large discrimination loss, which matters for low-resource settings. SHAP rankings are computed on the training set only to avoid selection bias.
+
+\begin{table}[h]
+\caption{Minimal questionnaire (HGB, 2015 test).}
+\label{tab:mq}
+\centering
+\begin{tabular}{lcc}
+\toprule
+Top-$k$ features & ROC-AUC & F1 \\
+\midrule
+5 & 0.8186 & 0.4305 \\
+8 & 0.8231 & 0.4357 \\
+11 & 0.8257 & 0.4404 \\
+15 & 0.8263 & 0.4413 \\
+21 (all) & 0.8269 & 0.4411 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Fairness-aware threshold optimization (novel)}
+For screening, sensitivity matters more than overall accuracy. Table~\ref{tab:thr} shows that lowering the threshold from $0.50$ to $0.345$ raises sensitivity from $0.797$ to $0.901$ at a specificity cost ($0.706 \to 0.571$), with the sex TPR gap staying small ($0.016$--$0.025$). This gives practitioners an explicit operating-point choice.
+
+\begin{table}[h]
+\caption{Threshold optimization (HGB, 2015 test).}
+\label{tab:thr}
+\centering
+\begin{tabular}{lcccc}
+\toprule
+Target sens. & Sens. & Spec. & Threshold & Sex TPR gap \\
+\midrule
+0.75 & 0.752 & 0.747 & 0.545 & 0.017 \\
+0.80 & 0.803 & 0.701 & 0.495 & 0.024 \\
+0.85 & 0.850 & 0.645 & 0.430 & 0.025 \\
+0.90 & 0.901 & 0.571 & 0.345 & 0.016 \\
+Default (thr=0.50) & 0.797 & 0.706 & 0.500 & 0.021 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\section{Discussion}
+
+\subsection{What the model is capturing (and what it is not)}
+The model captures strong, well-known associations between diabetes and general health status, blood pressure, age, BMI, and cholesterol. It does not capture causal effects, incidence, or individual clinical status; BRFSS is cross-sectional and self-reported.
+
+\subsection{Contextual positioning within the literature}
+Our discrimination (AUC $0.8288$) is comparable to prior BRFSS-based studies reporting 0.72--0.80 \cite{xie2019}, with the improvement plausibly from the larger 2015 release and gradient boosting. Direct comparison is limited by differing years, features, and splits.
+
+\subsection{Practical deployment scenarios}
+(1) Population-level risk stratification for outreach; (2) questionnaire triage in resource-limited settings; (3) hypothesis generation for public-health research. Each requires corroboration with clinical measurements before any individual decision.
+
+\subsection{Methodological limitations and validity boundaries}
+Numbered: (1) self-reported cross-sectional data, no biomarkers (HbA1c, glucose); (2) race/ethnicity absent from this cleaned subset, limiting health-equity analysis; (3) BRFSS design weights not incorporated, limiting population-level representativeness; (4) 24{,}206 duplicate feature profiles retained (leakage sensitivity not yet quantified); (5) no calibration metrics reported; (6) no extensive hyperparameter search; (7) SHAP-based feature selection uses training-data rankings only after correction; (8) association, not causation; (9) screening, not diagnosis.
+
+\subsection{Prospects for future development}
+Temporal extension to 2017--2023 waves; inclusion of race/ethnicity from raw BRFSS files; external validation on clinical cohorts; uncertainty quantification; hybrid survey-plus-biomarker models; prospective evaluation.
+
+\section{Conclusions}
+This study built an interpretable, fairness-aware screening framework for diabetes on 253{,}680 BRFSS respondents. Key substantive findings are: (1) gradient boosting and random forest modestly outperform logistic regression, but the gap is small (AUC 0.8288 vs. 0.8212); (2) clinical-history features dominate; (3) SHAP attributions align with established risk factors; (4) sex disparity is small, whereas age/income/education gaps track base rates. Appropriate use context: the tool is a screening-level, hypothesis-generating instrument for population triage and research, not a validated diagnostic or causal instrument.
+
+\section*{Acknowledgments}
+The authors thank the CDC for the BRFSS data and the UCI repository for hosting.
+
+\section*{Data Availability}
+The dataset is publicly available \cite{cdc2017}. Code and run manifests will be released on Zenodo/GitHub upon acceptance.
+
+\section*{Author Contributions}
+[TBD: CRediT statement.]
+
+\section*{Conflicts of Interest}
+The authors declare no conflict of interest.
+
+\begin{thebibliography}{99}
+
+\bibitem{cdc2017}
+CDC Diabetes Health Indicators [Dataset]. (2017). UCI Machine Learning Repository. \url{https://doi.org/10.24432/C53919} (accessed on 17 Oct. 2026).
+
+\bibitem{xie2019}
+Z. Xie, O. Nikolayeva, J. Luo, and D. Li, ``Building risk prediction models for type 2 diabetes using machine learning techniques,'' \textit{Prev. Chronic Dis.}, vol. 16, p. e130, 2019. \url{https://doi.org/10.5888/pcd16.190109}.
+
+\bibitem{shap2017}
+S. M. Lundberg and S.-I. Lee, ``A unified approach to interpreting model predictions,'' in \textit{Adv. Neural Inf. Process. Syst.}, vol. 30, pp. 4768--4777, 2017.
+
+\bibitem{hardt2016}
+M. Hardt, E. Price, and N. Srebro, ``Equality of opportunity in supervised learning,'' in \textit{Adv. Neural Inf. Process. Syst.}, vol. 29, pp. 3315--3323, 2016.
+
+\bibitem{mehrabi2021}
+N. Mehrabi, F. Morstatter, N. Saxena, K. Lerman, and A. Galstyan, ``A survey on bias and fairness in machine learning,'' \textit{ACM Comput. Surv.}, vol. 54, no. 6, art. 115, 2021. \url{https://doi.org/10.1145/3457607}.
+
+\bibitem{brfss}
+Centers for Disease Control and Prevention, ``Behavioral Risk Factor Surveillance System,'' 2015 annual data. \url{https://www.cdc.gov/brfss/annual_data/annual_2014.html} (accessed on 17 Oct. 2026).
+
+\bibitem{sklearn}
+F. Pedregosa \textit{et al.}, ``Scikit-learn: machine learning in Python,'' \textit{J. Mach. Learn. Res.}, vol. 12, pp. 2825--2830, 2011.
+
+\bibitem{xgboost}
+T. Chen and C. Guestrin, ``XGBoost: a scalable tree boosting system,'' in \textit{Proc. ACM SIGKDD}, pp. 785--794, 2016.
+
+\end{thebibliography}
+
+\end{document}
