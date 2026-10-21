@@ -9,3 +9,4 @@ Prompt collection/
 *.zip
 
 .kilo/
+results/logs/tempmail.json
