@@ -46,10 +46,10 @@ for pat in [r"\\title\{.*?\}", r"\\begin\{abstract\}.*?\\end\{abstract\}",
     body = re.sub(pat, "", body, flags=re.S)
 
 PW, PH = letter
-LM = RM = 0.55 * inch
-TM = 0.5 * inch
-BM = 0.55 * inch
-GUT = 0.22 * inch
+LM = RM = 0.75 * inch
+TM = 0.75 * inch
+BM = 1.0 * inch
+GUT = 0.2 * inch
 COLW = (PW - LM - RM - GUT) / 2.0
 
 styles = getSampleStyleSheet()
