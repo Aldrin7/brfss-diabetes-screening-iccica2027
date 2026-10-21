@@ -21,8 +21,8 @@ PIET Conference/
 │
 ├── manuscript/                  THE PAPER
 │   ├── manuscript.tex           authoritative source (LaTeX)
-│   ├── manuscript.docx          on the conference A4 template  <- primary Word artifact
-│   ├── manuscript.pdf           A4, single column, exported from that .docx  <- primary PDF
+│   ├── manuscript.docx          on the conference A4 template, TWO COLUMNS  <- primary Word artifact
+│   ├── manuscript.pdf           A4 two-column, exported from that .docx    <- primary PDF
 │   ├── manuscript_anon.docx     anonymized double-blind Word version
 │   ├── manuscript_anon.pdf      anonymized double-blind PDF  <- upload this to CMT
 │   └── build/                   intermediates (gitignored)
@@ -99,8 +99,9 @@ python src/make_template_docx.py                                   # manuscript/
 python src/make_template_docx.py --anon --out manuscript/manuscript_anon.docx
 ```
 
-Both are then exported to PDF by Word itself (the template is a Strict-OOXML file, so the
-script rewrites the namespace and reuses the template's styles, A4 setup and numbering):
+Both are **two-column** (A4, 0.75 in margins, 3.28 in columns, title block spanning the full
+width) and are then exported to PDF by Word itself — the template is a Strict-OOXML file, so
+the script rewrites the namespace and reuses the template's styles, A4 setup and numbering:
 
 ```powershell
 # open each .docx in Word and File > Export > PDF, or drive it with COM
@@ -135,8 +136,8 @@ IEEE Delhi Section; IEEE Xplore, Conference Record No. 73185.
 
 | Item | Requirement | State |
 |---|---|---|
-| Format | the venue's A4 Word template (`templates/conference-template-a4.docx`), single column | met |
-| Length | 6 pages in the anonymized A4 build (7 with the named author block) | met |
+| Format | the venue's A4 Word template, two-column (IEEE conference layout) | met |
+| Length | 6 pages, named and anonymized | met |
 | Review | double-blind, min. 3 reviewers, IEEE plagiarism check | `manuscript_anon.*` provided |
 | Submission | `cmt3.research.microsoft.com/ICCICA2027/Submission/Index` | author action |
 | Track | Track 4 - Data Science, Machine Learning and Deep Learning | selected |

@@ -65,7 +65,7 @@ Artifacts:
 | File | Use |
 |---|---|
 | `manuscript/manuscript_anon.pdf` | **upload this** to CMT (double-blind) |
-| `manuscript/manuscript.pdf` | camera-ready PDF, keep the author block |
+| `manuscript/manuscript.pdf` | camera-ready PDF (A4, two columns), keep the author block |
 | `manuscript/manuscript.tex` | authoritative source of both |
 | `manuscript_template.docx` | manuscript on the conference's own A4 Word template (`conference-template-a4.docx`) |
 | `manuscript.docx` | Word version, single column — for co-author review and annotation |
@@ -96,9 +96,15 @@ definitions supply "TABLE I.", "Fig. 1.", "[1]", "I." and "A.", so the numbers s
 consistent if content is added. Tables are real Word tables with IEEE rules, fixed column
 widths, a repeating header row and merged group rows; the figure is embedded at 4.2 in.
 
-Note the length difference: the IEEEtran PDF is 6 pages (two-column), while the A4 template
-version is 7 pages (single column, A4). If the 6-page limit is enforced in the A4 format,
-tell me and I will trim ~1 page of prose from the Word version only, leaving the PDF intact.
+The body is **two-column** (A4, 0.75 in margins, 3.28 in columns) with the title block
+spanning the full width, which is the IEEE conference layout the CFP describes. Both the
+named and the anonymized build come to **6 pages**. Tables are sized to the column width,
+carry a repeating header row, are never split across a column break, and the group rows
+span the table width; the figure is placed at 3.15 in inside the column.
+
+If the organizers prefer the plain two-column IEEEtran (US Letter) rendering instead, that
+build is kept in `archive/ieeetran_2col/` and can be regenerated with
+`python src/compile_ieee.py --max 6`.
 
 The Word versions are produced by `python src/make_docx.py [--twocol]`: IEEE-numbered
 citations, all four tables and the figure as native Word objects, the 17 references as a

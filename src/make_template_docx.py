@@ -301,6 +301,14 @@ def set_borders(table, doc):
     for side in ("left", "right", "insideH", "insideV"):
         borders.append(edge("w:%s" % side, "none", 0))
     tblPr.append(borders)
+    # tight cell padding so narrow numeric columns keep their headers on one line
+    mar = OxmlElement("w:tblCellMar")
+    for side, w in (("top", 0), ("left", CELL_MARGIN), ("bottom", 0), ("right", CELL_MARGIN)):
+        el = OxmlElement("w:%s" % side)
+        el.set(qn("w:w"), str(w))
+        el.set(qn("w:type"), "dxa")
+        mar.append(el)
+    tblPr.append(mar)
     # rule under the header row
     if table.rows:
         for cell in table.rows[0].cells:
@@ -310,7 +318,30 @@ def set_borders(table, doc):
             tcPr.append(tcB)
 
 
-def set_columns(table, widths_in):
+def keep_table_together(table, caption_paragraph=None):
+    """Keep a table (and its caption) on one column/page: no row splits, rows stay together."""
+    from docx.oxml.ns import qn
+    from docx.oxml import OxmlElement
+
+    def keep_next(p):
+        pPr = p._p.get_or_add_pPr()
+        if pPr.find(qn("w:keepNext")) is None:
+            pPr.append(OxmlElement("w:keepNext"))
+
+    if caption_paragraph is not None:
+        keep_next(caption_paragraph)
+    rows = table.rows
+    for ri, row in enumerate(rows):
+        trPr = row._tr.get_or_add_trPr()
+        if trPr.find(qn("w:cantSplit")) is None:
+            trPr.append(OxmlElement("w:cantSplit"))
+        if ri < len(rows) - 1:
+            for cell in row.cells:
+                for p in cell.paragraphs:
+                    keep_next(p)
+
+
+def set_table_columns(table, widths_in):
     """Fixed column widths (inches) and repeat-header / no-row-split settings."""
     from docx.oxml.ns import qn
     from docx.oxml import OxmlElement
@@ -335,17 +366,35 @@ def set_columns(table, widths_in):
 
 
 COLUMN_WIDTHS = {
-    4: [1.45, 1.35, 1.35, 1.35],
-    5: [1.45, 1.0, 1.0, 1.0, 1.0],
-    6: [1.45, 0.8, 0.8, 0.8, 0.8, 0.8],
+    4: [1.22, 0.69, 0.69, 0.68],
+    5: [1.10, 0.545, 0.545, 0.545, 0.545],
+    6: [0.95, 0.45, 0.45, 0.45, 0.50, 0.48],
 }
+CELL_MARGIN = 40  # twips (0.028 in) left/right, so numeric columns keep their headers
+COLUMN_TEXT_WIDTH = 3.28  # inches available inside one column of the A4 two-column layout
+FIGURE_WIDTH = 3.15       # inches, leaves a hair of slack inside the column
 
 
-def build(out_path, anon=False):
+def set_columns(section, num, space_twips=288):
+    """Set the number of text columns for a Word section."""
+    from docx.oxml.ns import qn
+    from docx.oxml import OxmlElement
+    sectPr = section._sectPr
+    cols = sectPr.find(qn("w:cols"))
+    if cols is None:
+        cols = OxmlElement("w:cols")
+        sectPr.append(cols)
+    cols.set(qn("w:num"), str(num))
+    cols.set(qn("w:space"), str(space_twips))
+    cols.set(qn("w:equalWidth"), "1")
+
+
+def build(out_path, anon=False, columns=2):
     import docx
     from docx.shared import Inches, Pt
     from docx.enum.text import WD_ALIGN_PARAGRAPH
     from docx.enum.table import WD_TABLE_ALIGNMENT
+    from docx.enum.section import WD_SECTION
 
     for d in FIGS:
         if os.path.isdir(d):
@@ -440,6 +489,9 @@ def build(out_path, anon=False):
         elif kind == "keywords":
             p = doc.add_paragraph(style="Keywords")
             add_runs(p, "Keywords\u2014" + prep(payload))
+            if columns > 1:
+                # the title block spans the full width; the body starts the two-column flow
+                doc.add_section(WD_SECTION.CONTINUOUS)
         elif kind == "h1":
             sec += 1
             sub = 0
@@ -463,9 +515,10 @@ def build(out_path, anon=False):
         elif kind == "table":
             tbl_i += 1
             tb = parse_table(payload, label_num)
+            cap_p = None
             if tb["caption"]:
-                p = doc.add_paragraph(style="table head")
-                add_runs(p, prep(tb["caption"]))
+                cap_p = doc.add_paragraph(style="table head")
+                add_runs(cap_p, prep(tb["caption"]))
             rows = tb["rows"]
             if rows:
                 ncols = max(len(r) for r in rows)
@@ -479,7 +532,8 @@ def build(out_path, anon=False):
                         cp.style = doc.styles["table col head" if ri == 0 else "table copy"]
                         add_runs(cp, prep(val))
                 set_borders(t, doc)
-                set_columns(t, COLUMN_WIDTHS.get(ncols, [5.4 / ncols] * ncols))
+                set_table_columns(t, COLUMN_WIDTHS.get(ncols, [COLUMN_TEXT_WIDTH / ncols] * ncols))
+                keep_table_together(t, cap_p)
                 # group rows (label in the first cell, the rest empty) span the full width
                 for ri, row in enumerate(rows):
                     if ri == 0:
@@ -496,7 +550,7 @@ def build(out_path, anon=False):
                 path = os.path.join(BUILD, img.group(1))
                 if not os.path.exists(path):
                     path = os.path.join(ROOT, "assets", "figures", img.group(1))
-                p.add_run().add_picture(path, width=Inches(4.2))
+                p.add_run().add_picture(path, width=Inches(FIGURE_WIDTH))
             if cap:
                 p = doc.add_paragraph(style="figure caption")
                 add_runs(p, prep(cap.group(1)))
@@ -509,6 +563,17 @@ def build(out_path, anon=False):
             p = doc.add_paragraph(style="references")
             add_runs(p, prep(bodytxt))
 
+    # page layout: A4 from the template, two-column body, full-width title block
+    if columns > 1 and len(doc.sections) > 1:
+        set_columns(doc.sections[0], 1)          # title / authors / abstract / keywords
+        set_columns(doc.sections[-1], columns)    # body
+    else:
+        for s in doc.sections:
+            set_columns(s, columns)
+    for s in doc.sections:
+        s.left_margin = Inches(0.75)
+        s.right_margin = Inches(0.75)
+
     doc.save(out_path)
     return out_path, blocks
 
@@ -518,9 +583,11 @@ def main():
     ap.add_argument("--out", default=os.path.join("manuscript", "manuscript.docx"))
     ap.add_argument("--anon", action="store_true",
                     help="anonymized double-blind version (no author block, no repository URL)")
+    ap.add_argument("--columns", type=int, default=2,
+                    help="text columns in the body (2 = IEEE conference layout)")
     args = ap.parse_args()
     out = args.out if os.path.isabs(args.out) else os.path.join(ROOT, args.out)
-    path, blocks = build(out, anon=args.anon)
+    path, blocks = build(out, anon=args.anon, columns=args.columns)
     import docx
     d = docx.Document(path)
     print("wrote %s" % path)
