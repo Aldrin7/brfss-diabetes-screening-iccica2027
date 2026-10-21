@@ -24,32 +24,32 @@ City, Country \\
 - IEEE membership status is entered in CMT (it changes the registration fee), not in the PDF.
 - The PDF itself must carry **no** identifying information beyond the author block.
 
-## 2. Fill in the CRediT statement — `manuscript.tex` line 198
+## 2. Back matter — only one placeholder remains
 
-Replace both `[Initials]` placeholders with the real author initials, and adjust the role
-split to what actually happened. Suggested split for a two-author paper:
+The manuscript now carries the Acknowledgments (IEEE AI-use disclosure), the Data and Code
+Availability statement, and the ethics sentence. The CRediT author-contribution statement,
+the funding statement and the conflict-of-interest block were removed, so the **author block
+is the only thing left to fill in**. If the venue later requests a CRediT statement, use:
 
 - Author A: Conceptualization, Methodology, Software, Validation, Formal analysis, Writing (original draft, review and editing)
 - Author B: Data curation, Resources, Writing (review and editing)
 
-## 3. Fill in the funding line — `manuscript.tex` line 201
+## 3. Repository release (optional, not blocking)
 
-Either the real source and grant number, or exactly: `This research received no external funding.`
+The Data and Code Availability statement now reads: the code, run manifests, logged results
+and the SHA-256 artifact manifest "are held in a private repository for review and will be
+made public on acceptance". That is accurate today — `https://github.com/Aldrin7/brfss-diabetes-screening-iccica2027`
+returns HTTP 404 (private or not yet created).
 
-## 4. Make the code repository public (blocking for the Data and Code Availability claim)
-
-`https://github.com/Aldrin7/brfss-diabetes-screening-iccica2027` currently returns HTTP 404
-(private or not yet created), but the manuscript states the code "is released" there. Pick one:
-
-- **Option A (recommended).** Make the repository public and confirm the URL resolves, then
-  keep the sentence as is. Optionally add a Zenodo DOI to \cite{repo} for a citable release.
-- **Option B.** Change the sentence to "will be released on acceptance", and make the
-  repository public after acceptance.
+- For the **submission**, nothing to do: the statement is honest as written.
+- For the **camera-ready (1 Jan 2027)**, make the repository public and change the sentence to
+  "are released at", optionally adding a Zenodo DOI to \cite{repo} for a citable release.
 
 The repository already contains: `src/`, `run_*.py`, `results/logs/*.json` (all 15 logged
 run files), `results/figures/`, `requirements.txt`, and the SHA-256 artifact manifest.
 `data/raw/` is intentionally excluded (the BRFSS files are redistributed by CDC/UCI/Kaggle
 under CC0 — see the README for the download instructions).
+
 
 ## 5. Build the two submission PDFs (already done, re-run after edits)
 
@@ -95,8 +95,11 @@ undefined citations or cross-references.
 - [x] All interpretability plots contain only the 21 BRFSS features (verified for the round-6 review point)
 - [x] Anonymized build contains no author name, affiliation, e-mail or repository URL
 - [x] IEEE AI-use disclosure present in the Acknowledgments; AI tools not listed as authors
-- [x] Ethics statement (public CC0 data, no IRB required), conflict of interest, funding, CRediT placeholders present
-- [x] Round-6 review points answered in `paperreview_responses_round6.md`
+- [x] Ethics statement (public CC0 data, no IRB required) inside the Data and Code Availability section
+- [x] No unresolved placeholders in the manuscript except the author block
+- [x] Data and Code Availability restated to "held in a private repository for review and will be made public on acceptance" (matches the 404 on the public URL)
+- [x] Round-6 review points answered in `paperreview_responses_round6.md`; round-8 verification review on the 6-page build
+
 
 ## 8. After acceptance (timeline)
 

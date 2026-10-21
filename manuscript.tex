@@ -189,18 +189,10 @@ The limitations are numbered: (1) self-reported cross-sectional data, no biomark
 We audited an interpretable, fairness-aware screening framework for diabetes on 253{,}680 BRFSS respondents. (1) Gradient boosting and random forest outperform logistic regression by a statistically significant but practically negligible margin ($\Delta$AUC $\le 0.0073$). (2) The headline AUC is protocol-dependent: the leakage-free estimate is $0.8177$, and 1{,}963 rows carry a covariate vector with a contradicting label, whose removal would raise AUC to $0.8397$. (3) Class-balancing weights are unnecessary and costly (ECE $0.2367$ versus $0.0038$), and an unweighted model with a sensitivity-targeted threshold gives slightly higher net benefit. (4) The sex TPR gap is small ($0.0171$ at the deployed operating point), while the age gap persists at every operating point tested, is only partly support-starved, and rises out of time. (5) Attribute-specific thresholds---the mitigation fairness audits recommend---do not transfer out of time, and we report that failure rather than claim a remedy. (6) Decision-curve net benefit supports sensitivity-oriented operating points below $0.5$. The tool is a screening-level, hypothesis-generating instrument, not a validated diagnostic, and does not yet support population-level prevalence claims.
 
 \section*{Acknowledgments}
-The authors thank the CDC for the BRFSS data and the UCI repository for hosting. Generative AI tools assisted with language editing and code; the authors reviewed and verified all content, and the AI tools are not listed as authors.
+Generative AI tools assisted with language editing and code; the authors reviewed and verified all content, and the AI tools are not listed as authors.
 
-\section*{Data, Code, and Ethics Availability}
-The dataset is publicly available \cite{cdc2017}. All code, run manifests, logged results, and a SHA-256 hash manifest of every artifact are released at \cite{repo}. This study analyses a publicly available, de-identified survey dataset under CC0; no identifiable human subject data were accessed, and institutional review board approval was therefore not required.
-
-\section*{Author Contributions}
-[Initials]: Conceptualization, Methodology, Software, Validation, Formal analysis, Writing (original draft, review and editing). [Initials]: Data curation, Resources. All authors read and approved the submitted version.
-
-\section*{Funding}
-[TBD: funding source and grant number, or "This research received no external funding."]
-
-The authors declare no conflict of interest.
+\section*{Data and Code Availability}
+The BRFSS-derived dataset is publicly available \cite{cdc2017}. The analysis code, run manifests, logged results, and a SHA-256 hash manifest of every artifact are held in a private repository for review and will be made public on acceptance \cite{repo}. This study analyses a publicly available, de-identified survey dataset under CC0; no identifiable human subject data were accessed, and institutional review board approval was therefore not required.
 
 \begin{thebibliography}{99}
 

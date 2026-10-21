@@ -42,10 +42,11 @@ def anonymize(text):
     )
     # 4. data-availability sentence
     text = text.replace(
-        "All code, run manifests, logged results, and a SHA-256 hash manifest of every artifact "
-        "are released at \\cite{repo}.",
-        "All code, run manifests, logged results, and a SHA-256 hash manifest of every artifact "
-        "are withheld during review and will be released on acceptance \\cite{repo}.",
+        "The analysis code, run manifests, logged results, and a SHA-256 hash manifest of every "
+        "artifact are held in a private repository for review and will be made public on acceptance "
+        "\\cite{repo}.",
+        "The analysis code, run manifests, logged results, and a SHA-256 hash manifest of every "
+        "artifact are withheld during review and will be released on acceptance \\cite{repo}.",
     )
     # 5. any residual self-identifying strings
     for token in ("Aldrin7", "Aldrin"):
