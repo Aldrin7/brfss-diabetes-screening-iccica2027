@@ -187,3 +187,36 @@ fails2 = [c for c in checks2 if not (c[2] and c[3])]
 print("round-4 checks: %d | failures: %d" % (len(checks2), len(fails2)))
 for label, needle, in_tex, ok in fails2:
     print("  FAIL %-22s needle=%-12s in_tex=%s value_ok=%s" % (label, needle, in_tex, ok))
+
+# ---------- round-8 additions ----------
+a13 = g("audit_results13.json")
+print("\n=== round-8 additions ===")
+checks3 = []
+def chk3(label, needle, ok):
+    checks3.append((label, needle, needle in tex, ok))
+
+ag15 = a13["2015_test_subgroups"]["Age"]
+ag21 = a13["2021_subgroups"]["Age"]
+retained = sorted([k for k, v in ag15.items() if v["n_pos"] >= 500], key=float)
+auc15 = [ag15[k]["roc_auc"] for k in retained]
+auc21 = [ag21[k]["roc_auc"] for k in retained]
+ece15 = [ag15[k]["ece_10bin"] for k in retained]
+ece21 = [ag21[k]["ece_10bin"] for k in retained]
+nb21 = [ag21[k]["net_benefit_pt0.10"] for k in retained]
+chk3("age bands retained", "seven support-retained", len(retained) == 7)
+chk3("age auc lo 2015", "0.7030", abs(min(auc15) - 0.7030) < 5e-5)
+chk3("age auc hi 2015", "0.8245", abs(max(auc15) - 0.8245) < 5e-5)
+chk3("age auc lo 2021", "0.7065", abs(min(auc21) - 0.7065) < 5e-5)
+chk3("age auc hi 2021", "0.8064", abs(max(auc21) - 0.8064) < 5e-5)
+chk3("age ece max 2015", "0.0208", abs(max(ece15) - 0.0208) < 5e-5)
+chk3("age ece max 2021", "0.0246", abs(max(ece21) - 0.0246) < 5e-5)
+chk3("age nb lo 2021", "0.0692", abs(min(nb21) - 0.0692) < 5e-5)
+chk3("age nb hi 2021", "0.1556", abs(max(nb21) - 0.1556) < 5e-5)
+pg = a13["per_group_calibration_transport"]
+chk3("per-group transport ece", "0.0116", abs(pg["overall_ece_per_group_transport"] - 0.0116) < 5e-5)
+chk3("global transport ece", "0.0097", abs(pg["overall_ece_global_transport"] - 0.0097) < 5e-5)
+
+fails3 = [c for c in checks3 if not (c[2] and c[3])]
+print("round-8 checks: %d | failures: %d" % (len(checks3), len(fails3)))
+for label, needle, in_tex, ok in fails3:
+    print("  FAIL %-22s needle=%-12s in_tex=%s value_ok=%s" % (label, needle, in_tex, ok))
