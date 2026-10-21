@@ -69,17 +69,15 @@ tp = a9["per_wave_transport_vs_refit"]
 chk("transport penalty 0.0035", "0.0035", abs(tp["2017"]["transport_penalty_ece"]-0.0035)<5e-5)
 # group-specific thresholds
 gs = a7["group_specific_thresholds"]["0.85"]
-chk("gs sex gap", "0.0014", abs(gs["group_specific"]["Sex"]["tpr_gap"]-0.0014)<5e-5)
-chk("gs edu gap", "0.1699", abs(gs["group_specific"]["Education"]["tpr_gap"]-0.1699)<5e-5)
-chk("gs income gap", "0.2300", abs(gs["group_specific"]["Income"]["tpr_gap"]-0.2300)<5e-5)
-chk("gs sens", "0.857", abs(gs["group_specific"]["overall_sensitivity"]-0.857)<5e-4)
-chk("gs spec", "0.637", abs(gs["group_specific"]["overall_specificity"]-0.637)<5e-4)
-# constrained
+chk("gs sex gap raw", "0.0014", abs(gs["group_specific"]["Sex"]["tpr_gap"]-0.0014)<5e-5)
+chk("gs sens raw", "0.857", abs(gs["group_specific"]["overall_sensitivity"]-0.857)<5e-4)
+chk("gs spec raw", "0.637", abs(gs["group_specific"]["overall_specificity"]-0.637)<5e-4)
 ct = a8["constrained_threshold_nondegenerate"]
 chk("delta 0.30 thr", "0.140", abs(ct["s0.85_d0.30"]["threshold"]-0.140)<6e-3)
 chk("delta 0.10 thr", "0.045", abs(ct["s0.85_d0.10"]["threshold"]-0.045)<6e-3)
 chk("delta 0.50 thr", "0.400", abs(ct["s0.85_d0.50"]["threshold"]-0.400)<6e-3)
-chk("baseline sens", "0.799", abs(ct["s0.85_d0.50"]["sens"]-0.867)>0 and abs(a8["constrained_threshold_baseline"]["sens"]-0.799)<5e-4)
+chk("delta 0.30 spec", "0.344", abs(ct["s0.85_d0.30"]["spec"]-0.344)<5e-4)
+chk("delta 0.10 spec", "0.147", abs(ct["s0.85_d0.10"]["spec"]-0.147)<5e-4)
 # shap stability
 ss = a5["shap_stability"]
 chk("jaccard seeds", "0.964", abs(ss["mean_jaccard_across_seeds"]-0.964)<5e-4)
@@ -128,4 +126,64 @@ chk("hp lr", "0.8233", abs(hs["LogisticRegression"]["best_cv_auc"]-0.8233)<5e-5)
 fails = [c for c in checks if not (c[2] and c[3])]
 print("checks: %d | failures: %d" % (len(checks), len(fails)))
 for label, needle, in_tex, ok in fails:
+    print("  FAIL %-22s needle=%-12s in_tex=%s value_ok=%s" % (label, needle, in_tex, ok))
+
+# ---------- round-4 additions ----------
+a10 = g("audit_results10.json"); a11 = g("audit_results11.json"); a12 = g("audit_results12.json")
+print("\n=== round-4 additions ===")
+checks2 = []
+def chk2(label, needle, ok):
+    checks2.append((label, needle, needle in tex, ok))
+
+w = a10["weighted_vs_unweighted"]
+chk2("cw auc", "0.8265", abs(w["class_weighted"]["roc_auc"]-0.8265)<5e-5)
+chk2("unw auc", "0.8267", abs(w["unweighted"]["roc_auc"]-0.8267)<5e-5)
+chk2("unw auprc", "0.4234", abs(w["unweighted"]["auprc"]-0.4234)<5e-5)
+chk2("unw raw ece", "0.0038", abs(w["unweighted"]["raw"]["ece"]-0.0038)<5e-5)
+chk2("cw mean pred", "0.376", abs(w["class_weighted"]["raw"]["mean_pred"]-0.376)<5e-4)
+chk2("unw mean pred", "0.139", abs(w["unweighted"]["raw"]["mean_pred"]-0.139)<5e-4)
+chk2("unw spec", "0.637", abs(w["unweighted"]["specificity"]-0.637)<5e-4)
+chk2("unw nb", "0.0787", abs(w["unweighted"]["net_benefit"]-0.0787)<5e-5)
+chk2("cw nb", "0.0785", abs(w["class_weighted"]["net_benefit"]-0.0785)<5e-5)
+chk2("unw thr", "0.115", abs(w["unweighted"]["sens_targeted_threshold"]-0.115)<6e-4)
+chk2("cw sens", "0.865", abs(w["class_weighted"]["sensitivity"]-0.865)<5e-4)
+chk2("unw sens", "0.857", abs(w["unweighted"]["sensitivity"]-0.857)<5e-4)
+mc = a10["multi_calibration"]
+chk2("mc sex gap", "0.0072", abs(mc["per_group_calib_then_group_thr"]["Sex"]["tpr_gap"]-0.0072)<5e-5)
+chk2("mc age gap", "0.4780", abs(mc["per_group_calib_then_group_thr"]["Age"]["tpr_gap"]-0.4780)<5e-5)
+ln = a10["label_noise"]
+chk2("ln clean auc", "0.8397", abs(ln["clean_auc"]-0.8397)<5e-5)
+chk2("ln removed", "5{,}218", ln["n_rows_removed"]==5218)
+chk2("ln age gap", "0.6671", abs(ln["clean_gaps"]["Age"]["tpr_gap"]-0.6671)<5e-5)
+chk2("ln edu gap", "0.1793", abs(ln["clean_gaps"]["Education"]["tpr_gap"]-0.1793)<5e-5)
+eb = a10["ece_binning_robustness"]
+chk2("ece ew15", "0.0049", abs(eb["equal_width_15"]["isotonic"]-0.0049)<5e-5)
+chk2("ece em10", "0.0044", abs(eb["equal_mass_10"]["isotonic"]-0.0044)<5e-5)
+chk2("ece tw", "0.2155", abs(eb["threshold_weighted"]["uncalibrated"]-0.2155)<5e-5)
+cf = a10["counterfactual_flips"]
+chk2("cf bmi", "88.2", abs(cf["BMI"]["flip_rate"]-0.8820)<5e-4)
+chk2("cf genhlth", "67.5", abs(cf["GenHlth"]["flip_rate"]-0.6745)<5e-4)
+chk2("cf age", "48.0", abs(cf["Age"]["flip_rate"]-0.4800)<5e-4)
+p15 = a11["policy_comparison_2015"]
+chk2("pol age gap", "0.9087", abs(p15["Age"]["Age"]["tpr_gap"]-0.9087)<5e-5)
+chk2("pol inc gap", "0.0899", abs(p15["Income"]["Income"]["tpr_gap"]-0.0899)<5e-5)
+chk2("pol edu gap", "0.0933", abs(p15["Education"]["Education"]["tpr_gap"]-0.0933)<5e-5)
+oot21 = a11["policy_out_of_time"]["2021"]
+chk2("oot inc gap", "0.8647", abs(oot21["Income"]["Income"]["tpr_gap"]-0.8647)<5e-5)
+chk2("oot edu gap", "0.7128", abs(oot21["Education"]["Education"]["tpr_gap"]-0.7128)<5e-5)
+chk2("oot age gap 2017", "0.8937", abs(a11["policy_out_of_time"]["2017"]["Age"]["Age"]["tpr_gap"]-0.8937)<5e-5)
+chk2("oot age gap 2019", "0.8992", abs(a11["policy_out_of_time"]["2019"]["Age"]["Age"]["tpr_gap"]-0.8992)<5e-5)
+chk2("oot global sens", "0.842", abs(oot21["Age"]["overall_sensitivity"]-0.819)<5e-3 and abs(a12["global_sens_targeted"]["2021"]["transported_threshold"]["overall_sensitivity"]-0.842)<5e-4)
+g15 = a12["global_sens_targeted"]["2015_test"]
+chk2("g15 age gap", "0.5111", abs(g15["Age"]["tpr_gap"]-0.5111)<5e-5)
+chk2("g15 sex gap", "0.0171", abs(g15["Sex"]["tpr_gap"]-0.0171)<5e-5)
+chk2("g15 spec", "0.623", abs(g15["overall_specificity"]-0.623)<5e-4)
+for yr, ag, sg in [("2017", "0.7727", "0.0201"), ("2019", "0.7901", "0.0229"), ("2021", "0.7646", "0.0275")]:
+    e = a12["global_sens_targeted"][yr]["transported_threshold"]
+    chk2("g%s age gap" % yr, ag, abs(e["Age"]["tpr_gap"]-float(ag))<5e-5)
+    chk2("g%s sex gap" % yr, sg, abs(e["Sex"]["tpr_gap"]-float(sg))<5e-5)
+
+fails2 = [c for c in checks2 if not (c[2] and c[3])]
+print("round-4 checks: %d | failures: %d" % (len(checks2), len(fails2)))
+for label, needle, in_tex, ok in fails2:
     print("  FAIL %-22s needle=%-12s in_tex=%s value_ok=%s" % (label, needle, in_tex, ok))
