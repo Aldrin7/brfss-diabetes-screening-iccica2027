@@ -489,15 +489,16 @@ def build(out_path, anon=False, columns=2):
             for line in [x.strip() for x in a.split("\n") if x.strip()]:
                 p = doc.add_paragraph(style="Author")
                 add_runs(p, line)
+            if columns > 1:
+                # IEEE layout: only the title and the author block span the full width;
+                # the abstract, the index terms and the body all sit in the two columns
+                doc.add_section(WD_SECTION.CONTINUOUS)
         elif kind == "abstract":
             p = doc.add_paragraph(style="Abstract")
             add_runs(p, "Abstract\u2014" + prep(payload))
         elif kind == "keywords":
             p = doc.add_paragraph(style="Keywords")
             add_runs(p, "Keywords\u2014" + prep(payload))
-            if columns > 1:
-                # the title block spans the full width; the body starts the two-column flow
-                doc.add_section(WD_SECTION.CONTINUOUS)
         elif kind == "h1":
             sec += 1
             sub = 0
